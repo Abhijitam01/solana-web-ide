@@ -1,0 +1,31 @@
+{
+    "$schema": "https://cursor.sh/schemas/configuration.json",
+    "rules": {
+      "architecture": "Follow a modular monorepo architecture with Turborepo. Keep frontend (Next.js) and backend (Express) separate. Use shared utils in /packages.",
+      "naming": "Use clear, descriptive names. Components: PascalCase. Files: kebab-case. Functions and variables: camelCase.",
+      "typescript": "Use strict mode. Always type parameters, returns, and API responses.",
+      "imports": "Prefer absolute imports using @/ for frontend, and local aliases for backend modules.",
+      "ai_suggestions": "When suggesting code, focus only on Solana, Anchor, Rust, or related blockchain logic. Avoid generic Node.js or unrelated API advice.",
+      "comments": "Document every function using JSDoc. Add brief architecture notes in complex files.",
+      "error_handling": "Use try/catch in async functions. Log errors clearly with context. Never swallow errors silently.",
+      "frontend": {
+        "style": "Use Tailwind CSS. Prefer shadcn/ui components for buttons, cards, modals, and input forms.",
+        "state_management": "Use Zustand or React Context minimally. Avoid prop drilling.",
+        "api_calls": "Use SWR or fetch with typed responses. Store API base in env var NEXT_PUBLIC_API_URL."
+      },
+      "backend": {
+        "structure": "Follow an MVC-style organization. Keep all logic in /lib, routes in /api, and configs in /config.",
+        "security": "Never expose API keys to frontend. Use dotenv and environment variables.",
+        "ai": "Integrate OpenAI API in a single file (/lib/ai/aiService.ts). All AI calls go through it."
+      },
+      "docker": {
+        "purpose": "Provide a consistent local development environment for Solana CLI, Anchor, Node.js, and Postgres.",
+        "performance": "Mount volumes for live reload. Use multi-stage builds for smaller images."
+      },
+      "testing": "Use Jest or Vitest. Write minimal integration tests for AI endpoints and contract compile routes.",
+      "linting": "Use ESLint + Prettier. Always format before commit.",
+      "git": "Commit atomic changes. Prefix commits with type: (feat, fix, chore, refactor, docs)."
+    }
+  }
+
+

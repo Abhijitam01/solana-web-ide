@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  frontend:
+    build: .
+    command: pnpm dev --filter web
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    depends_on:
+      - backend
+    volumes:
+      - .:/usr/src/app
+
+  backend:
+    build: .
+    command: pnpm dev --filter http-backend
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    depends_on:
+      - solana
+    volumes:
+      - .:/usr/src/app
+
+  solana:
+    image: solanalabs/solana:v1.18.0
+    container_name: solana-test-validator
+    command: solana-test-validator --reset --ledger /data/ledger
+    ports:
+      - "8899:8899"
+      - "8900:8900"
+    volumes:
+      - ./data/solana:/data
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: solana
+      POSTGRES_PASSWORD: solana
+      POSTGRES_DB: solana_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data

@@ -1,0 +1,100 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@repo/ui/button';
+import { Menu, X, Sun, Moon, Play, Download, Settings } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+
+interface HeaderProps {
+  onToggleSidebar: () => void;
+  onToggleTheme: () => void;
+  darkMode: boolean;
+}
+
+export default function Header({ onToggleSidebar, onToggleTheme, darkMode }: HeaderProps) {
+  const { connected } = useWallet();
+  const [isCompiling, setIsCompiling] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
+
+  const handleCompile = async () => {
+    setIsCompiling(true);
+    // TODO: Implement compilation logic
+    setTimeout(() => setIsCompiling(false), 2000);
+  };
+
+  const handleDeploy = async () => {
+    if (!connected) {
+      alert('Please connect your wallet to deploy');
+      return;
+    }
+    setIsDeploying(true);
+    // TODO: Implement deployment logic
+    setTimeout(() => setIsDeploying(false), 3000);
+  };
+
+  return (
+    <header className="h-12 bg-background border-b border-border flex items-center justify-between px-4">
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleSidebar}
+          className="p-2"
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+        
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">S</span>
+          </div>
+          <h1 className="text-lg font-semibold">Solana AI IDE</h1>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCompile}
+          disabled={isCompiling}
+          className="flex items-center space-x-1"
+        >
+          <Play className="h-4 w-4" />
+          <span>{isCompiling ? 'Compiling...' : 'Compile'}</span>
+        </Button>
+
+        <Button
+          variant="default"
+          size="sm"
+          onClick={handleDeploy}
+          disabled={isDeploying || !connected}
+          className="flex items-center space-x-1"
+        >
+          <Download className="h-4 w-4" />
+          <span>{isDeploying ? 'Deploying...' : 'Deploy'}</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleTheme}
+          className="p-2"
+        >
+          {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="p-2"
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
+
+        <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
+      </div>
+    </header>
+  );
+}
