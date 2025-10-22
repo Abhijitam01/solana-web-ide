@@ -14,7 +14,11 @@ import {
   Bug, 
   Rocket,
   FileText,
-  Settings
+  Settings,
+  Shield,
+  Lightbulb,
+  BookOpen,
+  Zap
 } from 'lucide-react';
 
 interface IDEProps {
@@ -78,7 +82,7 @@ pub struct Counter {
     }
   };
 
-  const handleAIAssist = async (type: 'generate' | 'explain' | 'optimize' | 'test') => {
+  const handleAIAssist = async (type: 'generate' | 'explain' | 'optimize' | 'test' | 'security' | 'improve' | 'document') => {
     setIsLoading(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/ai/generate`, {
@@ -157,7 +161,7 @@ pub struct Counter {
     <div className="h-full flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center justify-between p-4 border-b border-border">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 flex-wrap">
           <Button
             onClick={() => handleAIAssist('generate')}
             disabled={isLoading}
@@ -186,13 +190,40 @@ pub struct Counter {
             Optimize
           </Button>
           <Button
+            onClick={() => handleAIAssist('security')}
+            disabled={isLoading}
+            variant="outline"
+            size="sm"
+          >
+            <Shield className="w-4 h-4 mr-2" />
+            Security
+          </Button>
+          <Button
+            onClick={() => handleAIAssist('improve')}
+            disabled={isLoading}
+            variant="outline"
+            size="sm"
+          >
+            <Lightbulb className="w-4 h-4 mr-2" />
+            Improve
+          </Button>
+          <Button
             onClick={() => handleAIAssist('test')}
             disabled={isLoading}
             variant="outline"
             size="sm"
           >
             <Bug className="w-4 h-4 mr-2" />
-            Generate Tests
+            Tests
+          </Button>
+          <Button
+            onClick={() => handleAIAssist('document')}
+            disabled={isLoading}
+            variant="outline"
+            size="sm"
+          >
+            <BookOpen className="w-4 h-4 mr-2" />
+            Docs
           </Button>
         </div>
         

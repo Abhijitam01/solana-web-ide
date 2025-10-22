@@ -7,17 +7,20 @@ export class SolanaService {
   private wallet: Wallet;
 
   constructor() {
-    const rpcUrl = process.env.SOLANA_RPC_URL || 'http://localhost:8899';
+    const rpcUrl = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
     this.connection = new Connection(rpcUrl, 'confirmed');
     
     // Initialize wallet (in production, use proper key management)
     const privateKey = process.env.SOLANA_PRIVATE_KEY;
     if (!privateKey) {
-      throw new Error('SOLANA_PRIVATE_KEY environment variable is required');
+      console.warn('SOLANA_PRIVATE_KEY not found, using dummy wallet for development');
+      // Create a dummy wallet for development
+      const dummyKeypair = Keypair.generate();
+      this.wallet = new Wallet(dummyKeypair);
+    } else {
+      const keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(privateKey)));
+      this.wallet = new Wallet(keypair);
     }
-    
-    const keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(privateKey)));
-    this.wallet = new Wallet(keypair);
     
     this.provider = new AnchorProvider(
       this.connection,
