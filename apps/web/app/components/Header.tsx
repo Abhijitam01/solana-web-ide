@@ -10,9 +10,11 @@ interface HeaderProps {
   onToggleSidebar: () => void;
   onToggleTheme: () => void;
   darkMode: boolean;
+  user?: any;
+  onLogout?: () => void;
 }
 
-export default function Header({ onToggleSidebar, onToggleTheme, darkMode }: HeaderProps) {
+export default function Header({ onToggleSidebar, onToggleTheme, darkMode, user, onLogout }: HeaderProps) {
   const { connected } = useWallet();
   const [isCompiling, setIsCompiling] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
@@ -93,6 +95,22 @@ export default function Header({ onToggleSidebar, onToggleTheme, darkMode }: Hea
           <Settings className="h-4 w-4" />
         </Button>
 
+        {user && (
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <span>Welcome, {user.name || user.email}</span>
+            {onLogout && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onLogout}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Logout
+              </Button>
+            )}
+          </div>
+        )}
+        
         <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
       </div>
     </header>
