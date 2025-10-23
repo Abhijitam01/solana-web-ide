@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@repo/ui/button';
-import { Menu, X, Sun, Moon, Play, Download, Settings } from 'lucide-react';
+import { Menu, X, Sun, Moon, Play, Download, Settings, BookOpen, Code, Users } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useTheme } from './ThemeProvider';
@@ -12,9 +12,11 @@ interface HeaderProps {
   onToggleTheme: () => void;
   user?: any;
   onLogout?: () => void;
+  currentView?: 'learn' | 'code' | 'community';
+  onViewChange?: (view: 'learn' | 'code' | 'community') => void;
 }
 
-export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout }: HeaderProps) {
+export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout, currentView, onViewChange }: HeaderProps) {
   const { connected } = useWallet();
   const { theme } = useTheme();
   const [isCompiling, setIsCompiling] = useState(false);
@@ -56,28 +58,63 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout 
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
+      {/* Navigation */}
+      <div className="flex items-center space-x-1">
         <Button
-          variant="outline"
+          variant={currentView === 'learn' ? 'default' : 'ghost'}
           size="sm"
-          onClick={handleCompile}
-          disabled={isCompiling}
+          onClick={() => onViewChange?.('learn')}
           className="flex items-center space-x-1"
         >
-          <Play className="h-4 w-4" />
-          <span>{isCompiling ? 'Compiling...' : 'Compile'}</span>
+          <BookOpen className="h-4 w-4" />
+          <span className="hidden sm:inline">Learn</span>
         </Button>
+        <Button
+          variant={currentView === 'code' ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => onViewChange?.('code')}
+          className="flex items-center space-x-1"
+        >
+          <Code className="h-4 w-4" />
+          <span className="hidden sm:inline">Code</span>
+        </Button>
+        <Button
+          variant={currentView === 'community' ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => onViewChange?.('community')}
+          className="flex items-center space-x-1"
+        >
+          <Users className="h-4 w-4" />
+          <span className="hidden sm:inline">Community</span>
+        </Button>
+      </div>
 
-        <Button
-          variant="default"
-          size="sm"
-          onClick={handleDeploy}
-          disabled={isDeploying || !connected}
-          className="flex items-center space-x-1"
-        >
-          <Download className="h-4 w-4" />
-          <span>{isDeploying ? 'Deploying...' : 'Deploy'}</span>
-        </Button>
+      <div className="flex items-center space-x-2">
+        {currentView === 'code' && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCompile}
+              disabled={isCompiling}
+              className="flex items-center space-x-1"
+            >
+              <Play className="h-4 w-4" />
+              <span>{isCompiling ? 'Compiling...' : 'Compile'}</span>
+            </Button>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleDeploy}
+              disabled={isDeploying || !connected}
+              className="flex items-center space-x-1"
+            >
+              <Download className="h-4 w-4" />
+              <span>{isDeploying ? 'Deploying...' : 'Deploy'}</span>
+            </Button>
+          </>
+        )}
 
         <Button
           variant="ghost"

@@ -11,6 +11,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import AuthModal from './components/AuthModal';
 import LandingPage from './landing/page';
+import LearningDashboard from './learn/page';
 import { cn } from '../lib/utils';
 import { useTheme } from './components/ThemeProvider';
 
@@ -27,6 +28,7 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState(null);
+  const [currentView, setCurrentView] = useState<'learn' | 'code' | 'community'>('learn');
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -79,15 +81,21 @@ export default function Home() {
               onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               user={user}
               onLogout={handleLogout}
+              currentView={currentView}
+              onViewChange={setCurrentView}
             />
             <div className="flex flex-1 overflow-hidden">
               {sidebarOpen && (
                 <Sidebar 
                   onClose={() => setSidebarOpen(false)}
+                  currentView={currentView}
+                  onViewChange={setCurrentView}
                 />
               )}
               <main className="flex-1 overflow-hidden">
-                <IDE />
+                {currentView === 'learn' && <LearningDashboard />}
+                {currentView === 'code' && <IDE />}
+                {currentView === 'community' && <div className="p-8 text-center text-white">Community features coming soon!</div>}
               </main>
             </div>
           </div>

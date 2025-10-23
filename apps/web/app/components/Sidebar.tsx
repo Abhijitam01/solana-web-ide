@@ -14,12 +14,15 @@ import {
   Database,
   Zap,
   BookOpen,
-  Star
+  Star,
+  Users
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface SidebarProps {
   onClose: () => void;
+  currentView?: 'learn' | 'code' | 'community';
+  onViewChange?: (view: 'learn' | 'code' | 'community') => void;
 }
 
 interface Template {
@@ -31,7 +34,7 @@ interface Template {
   features: string[];
 }
 
-export default function Sidebar({ onClose }: SidebarProps) {
+export default function Sidebar({ onClose, currentView, onViewChange }: SidebarProps) {
   const [activeTab, setActiveTab] = useState('files');
   const [templates, setTemplates] = useState<Template[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,14 +59,48 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { id: 'docs', label: 'Documentation', icon: BookOpen },
   ];
 
+  const navigationItems = [
+    { id: 'learn', label: 'Learn', icon: BookOpen, description: 'Interactive tutorials and courses' },
+    { id: 'code', label: 'Code', icon: Code, description: 'IDE and development tools' },
+    { id: 'community', label: 'Community', icon: Users, description: 'Study groups and mentors' },
+  ];
+
   return (
     <div className="w-80 bg-background border-r border-border flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Explorer</h2>
+        <h2 className="text-sm font-semibold">Navigation</h2>
         <Button variant="ghost" size="sm" onClick={onClose} className="p-1">
           <X className="h-4 w-4" />
         </Button>
+      </div>
+
+      {/* Main Navigation */}
+      <div className="p-4 border-b border-border">
+        <h3 className="text-sm font-medium mb-3">Main Sections</h3>
+        <div className="space-y-2">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => onViewChange?.(item.id as 'learn' | 'code' | 'community')}
+                className={cn(
+                  "w-full flex items-center space-x-3 p-3 rounded-lg text-left transition-colors",
+                  currentView === item.id
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Icon className="h-5 w-5" />
+                <div>
+                  <div className="font-medium">{item.label}</div>
+                  <div className="text-xs opacity-70">{item.description}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tabs */}

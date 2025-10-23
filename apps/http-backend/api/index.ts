@@ -74,13 +74,21 @@ router.post('/compile', async (req, res) => {
   try {
     const { programCode, programName } = req.body;
     
-    // Simulate compilation for now
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    if (!programCode || !programName) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Program code and name are required' 
+      });
+    }
+
+    const { compilationService } = await import('../lib/compilation');
+    const result = await compilationService.compileProgram(programCode, programName);
     
     res.json({
-      success: true,
-      message: 'Program compiled successfully',
-      output: 'Build completed without errors',
+      success: result.success,
+      output: result.output,
+      errors: result.errors,
+      artifacts: result.artifacts,
       timestamp: new Date()
     });
   } catch (error) {
@@ -96,18 +104,22 @@ router.post('/compile', async (req, res) => {
 // Deployment Routes
 router.post('/deploy', async (req, res) => {
   try {
-    const { programIdl, programName } = req.body;
+    const { programBuffer, programName } = req.body;
     
-    // Simulate deployment for now
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    if (!programBuffer || !programName) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Program buffer and name are required' 
+      });
+    }
+
+    // Convert base64 buffer to Buffer
+    const buffer = Buffer.from(programBuffer, 'base64');
     
-    res.json({
-      success: true,
-      message: 'Program deployed successfully',
-      programId: '11111111111111111111111111111111',
-      explorerUrl: 'https://explorer.solana.com/address/11111111111111111111111111111111?cluster=devnet',
-      timestamp: new Date()
-    });
+    const { deploymentService } = await import('../lib/deployment');
+    const result = await deploymentService.deployProgram(buffer, programName);
+    
+    res.json(result);
   } catch (error) {
     console.error('Deployment error:', error);
     res.status(500).json({
@@ -115,6 +127,19 @@ router.post('/deploy', async (req, res) => {
       error: 'Deployment failed',
       timestamp: new Date()
     });
+  }
+});
+
+// Add deployment status endpoint
+router.get('/deploy/status/:programId', async (req, res) => {
+  try {
+    const { programId } = req.params;
+    const { deploymentService } = await import('../lib/deployment');
+    const status = await deploymentService.getDeploymentStatus(programId);
+    res.json(status);
+  } catch (error) {
+    console.error('Status check error:', error);
+    res.status(500).json({ error: 'Failed to check deployment status' });
   }
 });
 

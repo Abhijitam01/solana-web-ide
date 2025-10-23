@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  compilation:
+    build:
+      context: ./apps/http-backend/docker
+      dockerfile: Dockerfile.compilation
+    volumes:
+      - ./temp/compilation:/workspace
+    environment:
+      - ANCHOR_WALLET=/workspace/.config/solana/id.json
+    networks:
+      - solana-network
+
+  solana-test-validator:
+    image: solanalabs/solana:v1.17.0
+    command: solana-test-validator --reset
+    ports:
+      - "8899:8899"
+      - "8900:8900"
+    networks:
+      - solana-network
+
+networks:
+  solana-network:
+    driver: bridge
