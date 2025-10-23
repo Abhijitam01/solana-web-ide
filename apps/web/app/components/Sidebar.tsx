@@ -20,7 +20,6 @@ import { cn } from '../../lib/utils';
 
 interface SidebarProps {
   onClose: () => void;
-  darkMode: boolean;
 }
 
 interface Template {
@@ -32,7 +31,7 @@ interface Template {
   features: string[];
 }
 
-export default function Sidebar({ onClose, darkMode }: SidebarProps) {
+export default function Sidebar({ onClose }: SidebarProps) {
   const [activeTab, setActiveTab] = useState('files');
   const [templates, setTemplates] = useState<Template[]>([]);
   const [searchQuery, setSearchQuery] = useState('');

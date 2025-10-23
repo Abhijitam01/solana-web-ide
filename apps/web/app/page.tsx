@@ -12,6 +12,7 @@ import Sidebar from './components/Sidebar';
 import AuthModal from './components/AuthModal';
 import LandingPage from './landing/page';
 import { cn } from '../lib/utils';
+import { useTheme } from './components/ThemeProvider';
 
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -23,21 +24,12 @@ const wallets = [
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState(null);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setDarkMode(savedTheme === 'dark');
-    } else {
-      // Default to dark mode
-      setDarkMode(true);
-    }
-
     // Check for authentication
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
@@ -45,12 +37,6 @@ export default function Home() {
       setIsAuthenticated(true);
     }
   }, []);
-
-  useEffect(() => {
-    // Apply theme to document
-    document.documentElement.classList.toggle('dark', darkMode);
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
 
   const handleAuthSuccess = (userData: any) => {
     setUser(userData);
@@ -68,7 +54,7 @@ export default function Home() {
   // Show landing page if not authenticated
   if (!isAuthenticated) {
     return (
-      <div className={cn("min-h-screen", darkMode ? 'dark' : '')}>
+      <div className="min-h-screen">
         <LandingPage 
           onLogin={() => setShowAuthModal(true)}
           onSignup={() => setShowAuthModal(true)}
@@ -87,14 +73,10 @@ export default function Home() {
     <ConnectionProvider endpoint={clusterApiUrl('devnet')}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <div className={cn(
-            "h-screen flex flex-col bg-background text-foreground",
-            darkMode ? 'dark' : ''
-          )}>
+          <div className="h-screen flex flex-col bg-background text-foreground">
             <Header 
               onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-              onToggleTheme={() => setDarkMode(!darkMode)}
-              darkMode={darkMode}
+              onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               user={user}
               onLogout={handleLogout}
             />
@@ -102,11 +84,10 @@ export default function Home() {
               {sidebarOpen && (
                 <Sidebar 
                   onClose={() => setSidebarOpen(false)}
-                  darkMode={darkMode}
                 />
               )}
               <main className="flex-1 overflow-hidden">
-                <IDE darkMode={darkMode} />
+                <IDE />
               </main>
             </div>
           </div>

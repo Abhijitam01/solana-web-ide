@@ -5,17 +5,18 @@ import { Button } from '@repo/ui/button';
 import { Menu, X, Sun, Moon, Play, Download, Settings } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useTheme } from './ThemeProvider';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
   onToggleTheme: () => void;
-  darkMode: boolean;
   user?: any;
   onLogout?: () => void;
 }
 
-export default function Header({ onToggleSidebar, onToggleTheme, darkMode, user, onLogout }: HeaderProps) {
+export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout }: HeaderProps) {
   const { connected } = useWallet();
+  const { theme } = useTheme();
   const [isCompiling, setIsCompiling] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
 
@@ -42,7 +43,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, darkMode, user,
           variant="ghost"
           size="sm"
           onClick={onToggleSidebar}
-          className="p-2"
+          className="p-2 md:hidden"
         >
           <Menu className="h-4 w-4" />
         </Button>
@@ -51,7 +52,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, darkMode, user,
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">S</span>
           </div>
-          <h1 className="text-lg font-semibold">Solana AI IDE</h1>
+          <h1 className="text-lg font-semibold hidden sm:block">Solana AI IDE</h1>
         </div>
       </div>
 
@@ -84,7 +85,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, darkMode, user,
           onClick={onToggleTheme}
           className="p-2"
         >
-          {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
 
         <Button

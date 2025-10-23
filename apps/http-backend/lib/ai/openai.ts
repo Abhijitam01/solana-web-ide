@@ -225,6 +225,106 @@ export class AIService {
       throw new Error('Failed to generate documentation with AI');
     }
   }
+
+  async simplifyError(errorMessage: string, context?: string): Promise<string> {
+    try {
+      const prompt = `You are an expert Solana developer and technical writer. Simplify this complex error message into easy-to-understand language:
+
+      **Error Message:**
+      \`\`\`
+      ${errorMessage}
+      \`\`\`
+
+      ${context ? `**Context:** ${context}` : ''}
+
+      Please provide:
+      1. **What went wrong** (in simple terms)
+      2. **Why it happened** (root cause explanation)
+      3. **How to fix it** (step-by-step solution)
+      4. **Prevention tips** (how to avoid this in the future)
+      5. **Common mistakes** (related issues to watch out for)
+
+      Format your response as:
+      ## 🚨 What's Wrong?
+      [Simple explanation]
+
+      ## 🔍 Why This Happened
+      [Root cause analysis]
+
+      ## ✅ How to Fix It
+      [Step-by-step solution]
+
+      ## 🛡️ How to Prevent This
+      [Prevention tips]
+
+      ## ⚠️ Common Related Issues
+      [Additional things to watch out for]
+
+      Keep the language simple, use emojis for visual appeal, and provide actionable solutions.`;
+
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      console.error('AI error simplification error:', error);
+      throw new Error('Failed to simplify error with AI');
+    }
+  }
+
+  async analyzeCompilationError(errorOutput: string, code?: string): Promise<string> {
+    try {
+      const prompt = `Analyze this Solana/Anchor compilation error and provide a comprehensive solution:
+
+      **Compilation Error:**
+      \`\`\`
+      ${errorOutput}
+      \`\`\`
+
+      ${code ? `**Code that caused the error:**
+      \`\`\`rust
+      ${code}
+      \`\`\`` : ''}
+
+      Provide:
+      1. **Error Type** (syntax, type, import, etc.)
+      2. **Root Cause** (what specifically is wrong)
+      3. **Quick Fix** (immediate solution)
+      4. **Detailed Solution** (step-by-step fix)
+      5. **Code Example** (corrected version if applicable)
+      6. **Prevention** (how to avoid this error)
+      7. **Related Errors** (other similar issues to watch for)
+
+      Format as:
+      ## 🔍 Error Analysis
+      **Type:** [Error type]
+      **Severity:** [Critical/High/Medium/Low]
+
+      ## 🎯 Root Cause
+      [Detailed explanation of what's wrong]
+
+      ## ⚡ Quick Fix
+      [Immediate solution]
+
+      ## 🔧 Detailed Solution
+      [Step-by-step instructions]
+
+      ## 💡 Code Example
+      [Corrected code if applicable]
+
+      ## 🛡️ Prevention Tips
+      [How to avoid this error]
+
+      ## ⚠️ Related Issues
+      [Other similar errors to watch for]`;
+
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      console.error('AI compilation error analysis error:', error);
+      throw new Error('Failed to analyze compilation error with AI');
+    }
+  }
 }
 
 export const aiService = new AIService();

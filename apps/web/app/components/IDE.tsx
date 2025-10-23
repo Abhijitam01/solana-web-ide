@@ -5,6 +5,7 @@ import { Editor } from '@monaco-editor/react';
 import { Button } from '@repo/ui/button';
 import { Card } from '@repo/ui/card';
 import { Code } from '@repo/ui/code';
+import Terminal from './Terminal';
 import { 
   Play, 
   Save, 
@@ -18,14 +19,15 @@ import {
   Shield,
   Lightbulb,
   BookOpen,
-  Zap
+  Zap,
+  Terminal as TerminalIcon
 } from 'lucide-react';
+import { useTheme } from './ThemeProvider';
 
-interface IDEProps {
-  darkMode: boolean;
-}
+interface IDEProps {}
 
-export default function IDE({ darkMode }: IDEProps) {
+export default function IDE({}: IDEProps) {
+  const { theme } = useTheme();
   const [code, setCode] = useState(`use anchor_lang::prelude::*;
 
 declare_id!("11111111111111111111111111111111");
@@ -70,6 +72,7 @@ pub struct Counter {
   const [aiResponse, setAiResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('editor');
+  const [showTerminal, setShowTerminal] = useState(false);
   const editorRef = useRef<any>(null);
 
   const handleEditorDidMount = (editor: any) => {
@@ -157,6 +160,11 @@ pub struct Counter {
     }
   };
 
+  const handleTerminalCommand = async (command: string) => {
+    // Handle terminal commands here
+    console.log('Terminal command:', command);
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Toolbar */}
@@ -229,6 +237,15 @@ pub struct Counter {
         
         <div className="flex items-center space-x-2">
           <Button
+            onClick={() => setShowTerminal(!showTerminal)}
+            variant="outline"
+            size="sm"
+            className={showTerminal ? 'bg-blue-100 text-blue-700' : ''}
+          >
+            <TerminalIcon className="w-4 h-4 mr-2" />
+            Terminal
+          </Button>
+          <Button
             onClick={handleCompile}
             disabled={isLoading}
             variant="outline"
@@ -274,6 +291,18 @@ pub struct Counter {
             >
               AI Assistant
             </button>
+            {showTerminal && (
+              <button
+                onClick={() => setActiveTab('terminal')}
+                className={`px-4 py-2 text-sm font-medium ${
+                  activeTab === 'terminal'
+                    ? 'border-b-2 border-primary text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Terminal
+              </button>
+            )}
           </div>
           
           <div className="flex-1">
@@ -284,7 +313,7 @@ pub struct Counter {
                 value={code}
                 onChange={handleCodeChange}
                 onMount={handleEditorDidMount}
-                theme={darkMode ? 'vs-dark' : 'light'}
+                theme={theme === 'dark' ? 'vs-dark' : 'light'}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 14,
@@ -293,6 +322,11 @@ pub struct Counter {
                   scrollBeyondLastLine: false,
                   automaticLayout: true,
                 }}
+              />
+            ) : activeTab === 'terminal' ? (
+              <Terminal 
+                onCommand={handleTerminalCommand}
+                className="h-full"
               />
             ) : (
               <div className="h-full p-4">
