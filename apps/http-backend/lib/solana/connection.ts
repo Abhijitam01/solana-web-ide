@@ -104,8 +104,9 @@ export class SolanaService {
 
   async getHealth(): Promise<boolean> {
     try {
-      const health = await this.connection.getHealth();
-      return health === 'ok';
+      // Check if connection is working by getting slot
+      await this.connection.getSlot();
+      return true;
     } catch (error) {
       console.error('Error checking health:', error);
       return false;

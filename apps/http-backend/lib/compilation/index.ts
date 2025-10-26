@@ -107,7 +107,8 @@ anchor-spl = "0.29.0"`;
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Check if the code has basic syntax
-      const codePath = path.join(workDir, 'programs', 'program', 'src', 'lib.rs');
+      const programName = 'program'; // Use default name for now
+      const codePath = path.join(workDir, 'programs', programName, 'src', 'lib.rs');
       const code = await fs.readFile(codePath, 'utf-8');
       
       // Simple syntax check

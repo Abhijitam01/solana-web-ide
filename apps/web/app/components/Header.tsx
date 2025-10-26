@@ -39,57 +39,74 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
   };
 
   return (
-    <header className="h-12 bg-background border-b border-border flex items-center justify-between px-4">
-      <div className="flex items-center space-x-2">
+    <header className="h-16 bg-black/20 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-6">
+      <div className="flex items-center space-x-4">
         <Button
           variant="ghost"
           size="sm"
           onClick={onToggleSidebar}
-          className="p-2 md:hidden"
+          className="p-2 text-white/70 hover:text-white hover:bg-white/10 md:hidden"
         >
-          <Menu className="h-4 w-4" />
+          <Menu className="h-5 w-5" />
         </Button>
         
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">S</span>
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+            <span className="text-white font-bold text-lg">⚡</span>
           </div>
-          <h1 className="text-lg font-semibold hidden sm:block">Solana AI IDE</h1>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+              Solana AI IDE
+            </h1>
+            <p className="text-xs text-white/60">AI-Powered Development</p>
+          </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-2">
         <Button
           variant={currentView === 'learn' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => onViewChange?.('learn')}
-          className="flex items-center space-x-1"
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+            currentView === 'learn' 
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
+              : 'text-white/70 hover:text-white hover:bg-white/10'
+          }`}
         >
           <BookOpen className="h-4 w-4" />
-          <span className="hidden sm:inline">Learn</span>
+          <span className="hidden sm:inline font-medium">Learn</span>
         </Button>
         <Button
           variant={currentView === 'code' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => onViewChange?.('code')}
-          className="flex items-center space-x-1"
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+            currentView === 'code' 
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
+              : 'text-white/70 hover:text-white hover:bg-white/10'
+          }`}
         >
           <Code className="h-4 w-4" />
-          <span className="hidden sm:inline">Code</span>
+          <span className="hidden sm:inline font-medium">Code</span>
         </Button>
         <Button
           variant={currentView === 'community' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => onViewChange?.('community')}
-          className="flex items-center space-x-1"
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+            currentView === 'community' 
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
+              : 'text-white/70 hover:text-white hover:bg-white/10'
+          }`}
         >
           <Users className="h-4 w-4" />
-          <span className="hidden sm:inline">Community</span>
+          <span className="hidden sm:inline font-medium">Community</span>
         </Button>
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-3">
         {currentView === 'code' && (
           <>
             <Button
@@ -97,21 +114,20 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
               size="sm"
               onClick={handleCompile}
               disabled={isCompiling}
-              className="flex items-center space-x-1"
+              className="flex items-center space-x-2 border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
             >
               <Play className="h-4 w-4" />
-              <span>{isCompiling ? 'Compiling...' : 'Compile'}</span>
+              <span className="font-medium">{isCompiling ? 'Compiling...' : 'Compile'}</span>
             </Button>
 
             <Button
-              variant="default"
               size="sm"
               onClick={handleDeploy}
               disabled={isDeploying || !connected}
-              className="flex items-center space-x-1"
+              className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg"
             >
               <Download className="h-4 w-4" />
-              <span>{isDeploying ? 'Deploying...' : 'Deploy'}</span>
+              <span className="font-medium">{isDeploying ? 'Deploying...' : 'Deploy'}</span>
             </Button>
           </>
         )}
@@ -120,7 +136,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
           variant="ghost"
           size="sm"
           onClick={onToggleTheme}
-          className="p-2"
+          className="p-2 text-white/70 hover:text-white hover:bg-white/10"
         >
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
@@ -128,20 +144,29 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
         <Button
           variant="ghost"
           size="sm"
-          className="p-2"
+          className="p-2 text-white/70 hover:text-white hover:bg-white/10"
         >
           <Settings className="h-4 w-4" />
         </Button>
 
         {user && (
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <span>Welcome, {user.name || user.email}</span>
+          <div className="flex items-center space-x-3 text-sm">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">
+                  {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="hidden sm:block">
+                <p className="text-white font-medium">Welcome, {user.name || user.email}</p>
+              </div>
+            </div>
             {onLogout && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onLogout}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-white/70 hover:text-white hover:bg-white/10"
               >
                 Logout
               </Button>
@@ -149,7 +174,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
           </div>
         )}
         
-        <WalletMultiButton className="!bg-primary !text-primary-foreground hover:!bg-primary/90" />
+        <WalletMultiButton className="!bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !shadow-lg !border-0" />
       </div>
     </header>
   );
