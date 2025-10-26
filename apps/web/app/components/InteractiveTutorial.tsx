@@ -2,436 +2,439 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@repo/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/card';
+import { Card } from '@repo/ui/card';
 import { 
   Play, 
   Pause, 
   RotateCcw, 
-  ChevronLeft, 
-  ChevronRight,
-  CheckCircle,
-  Circle,
-  Lightbulb,
-  Target,
+  CheckCircle, 
+  AlertCircle, 
+  Lightbulb, 
+  ArrowRight, 
+  ArrowLeft,
   BookOpen,
   Code,
-  Zap,
-  Brain,
-  Star,
-  Clock,
-  Users,
-  Award
+  Target,
+  Trophy
 } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
-interface TutorialStep {
+export interface TutorialStep {
+  id: string;
+  title: string;
+  type: 'explanation' | 'code' | 'quiz' | 'challenge' | 'demo';
+  content: string;
+  expectedCode?: string;
+  hints: string[];
+  explanation: string;
+  nextStep?: string;
+  prevStep?: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  estimatedTime: number; // in minutes
+  xpReward: number;
+  prerequisites?: string[];
+}
+
+export interface TutorialProgress {
+  stepId: string;
+  completed: boolean;
+  attempts: number;
+  timeSpent: number;
+  hintsUsed: number;
+  completedAt?: Date;
+}
+
+export interface Tutorial {
   id: string;
   title: string;
   description: string;
-  code?: string;
-  explanation?: string;
-  hint?: string;
-  solution?: string;
-  type: 'concept' | 'code' | 'challenge' | 'quiz';
+  category: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  estimatedTime: number; // in minutes
-  isCompleted: boolean;
-  isLocked: boolean;
+  estimatedTime: number;
+  steps: TutorialStep[];
+  prerequisites?: string[];
+  xpReward: number;
+  badge?: string;
 }
 
 interface InteractiveTutorialProps {
-  tutorialId: string;
-  onComplete?: (tutorialId: string) => void;
+  tutorial: Tutorial;
+  onComplete: (tutorial: Tutorial, progress: TutorialProgress[]) => void;
+  onStepComplete: (step: TutorialStep, progress: TutorialProgress) => void;
+  userProgress?: TutorialProgress[];
+  isEmbedded?: boolean;
 }
 
-export default function InteractiveTutorial({ tutorialId, onComplete }: InteractiveTutorialProps) {
-  const [currentStep, setCurrentStep] = useState(0);
+export default function InteractiveTutorial({
+  tutorial,
+  onComplete,
+  onStepComplete,
+  userProgress = [],
+  isEmbedded = false
+}: InteractiveTutorialProps) {
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentCode, setCurrentCode] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [userAnswer, setUserAnswer] = useState('');
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [progress, setProgress] = useState(0);
+  const [showHints, setShowHints] = useState(false);
+  const [hintIndex, setHintIndex] = useState(0);
+  const [validationResult, setValidationResult] = useState<{
+    isValid: boolean;
+    message: string;
+    errors?: string[];
+  } | null>(null);
+  const [timeSpent, setTimeSpent] = useState(0);
+  const [attempts, setAttempts] = useState(0);
 
-  const tutorialSteps: TutorialStep[] = [
-    {
-      id: 'what-is-solana',
-      title: 'What is Solana?',
-      description: 'Learn the fundamentals of Solana blockchain and how it differs from other blockchains.',
-      explanation: 'Solana is a high-performance blockchain that can process thousands of transactions per second. It uses a unique consensus mechanism called Proof of History (PoH) combined with Proof of Stake (PoS).',
-      type: 'concept',
-      difficulty: 'beginner',
-      estimatedTime: 5,
-      isCompleted: false,
-      isLocked: false
-    },
-    {
-      id: 'accounts-and-programs',
-      title: 'Accounts and Programs',
-      description: 'Understand how data is stored and managed on Solana through accounts and programs.',
-      explanation: 'In Solana, everything is an account. Programs are accounts that store executable code, while data accounts store information. Each account has an owner (usually a program) and can store data.',
-      type: 'concept',
-      difficulty: 'beginner',
-      estimatedTime: 8,
-      isCompleted: false,
-      isLocked: false
-    },
-    {
-      id: 'first-program',
-      title: 'Your First Solana Program',
-      description: 'Write your first Solana program using Anchor framework.',
-      code: `use anchor_lang::prelude::*;
-
-declare_id!("11111111111111111111111111111111");
-
-#[program]
-pub mod hello_world {
-    use super::*;
-
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        let counter = &mut ctx.accounts.counter;
-        counter.count = 0;
-        Ok(())
-    }
-}`,
-      explanation: 'This is a basic Solana program that initializes a counter. The `#[program]` macro tells Anchor this is the main program logic.',
-      type: 'code',
-      difficulty: 'beginner',
-      estimatedTime: 10,
-      isCompleted: false,
-      isLocked: false
-    },
-    {
-      id: 'understanding-macros',
-      title: 'Understanding Anchor Macros',
-      description: 'Learn about the key macros used in Anchor development.',
-      hint: 'Think about what each macro does and why it\'s important for Solana development.',
-      type: 'quiz',
-      difficulty: 'beginner',
-      estimatedTime: 7,
-      isCompleted: false,
-      isLocked: false
-    },
-    {
-      id: 'challenge-counter',
-      title: 'Challenge: Build a Counter',
-      description: 'Create a counter program that can increment and decrement values.',
-      hint: 'You\'ll need to add increment and decrement functions to your program.',
-      solution: `pub fn increment(ctx: Context<Increment>) -> Result<()> {
-    let counter = &mut ctx.accounts.counter;
-    counter.count += 1;
-    Ok(())
-}
-
-pub fn decrement(ctx: Context<Decrement>) -> Result<()> {
-    let counter = &mut ctx.accounts.counter;
-    counter.count -= 1;
-    Ok(())
-}`,
-      type: 'challenge',
-      difficulty: 'intermediate',
-      estimatedTime: 15,
-      isCompleted: false,
-      isLocked: false
-    }
-  ];
-
-  const currentStepData = tutorialSteps[currentStep];
-  const isLastStep = currentStep === tutorialSteps.length - 1;
-  const isFirstStep = currentStep === 0;
+  const currentStep = tutorial.steps[currentStepIndex];
+  const progress = userProgress.find(p => p.stepId === currentStep.id);
+  const isCompleted = progress?.completed || false;
 
   useEffect(() => {
-    setProgress(((currentStep + 1) / tutorialSteps.length) * 100);
-  }, [currentStep, tutorialSteps.length]);
-
-  const handleNext = () => {
-    if (currentStep < tutorialSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-      setShowHint(false);
-      setUserAnswer('');
-      setIsCorrect(null);
-    } else {
-      onComplete?.(tutorialId);
+    let interval: NodeJS.Timeout;
+    if (isPlaying && !isCompleted) {
+      interval = setInterval(() => {
+        setTimeSpent(prev => prev + 1);
+      }, 1000);
     }
-  };
+    return () => clearInterval(interval);
+  }, [isPlaying, isCompleted]);
 
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-      setShowHint(false);
-      setUserAnswer('');
-      setIsCorrect(null);
+  const validateCode = (code: string, expectedCode?: string) => {
+    if (!expectedCode) return { isValid: true, message: 'No validation required' };
+
+    // Simple validation - in real implementation, this would be more sophisticated
+    const normalizedCode = code.trim().toLowerCase();
+    const normalizedExpected = expectedCode.trim().toLowerCase();
+    
+    if (normalizedCode === normalizedExpected) {
+      return { isValid: true, message: 'Perfect! Code matches expected output.' };
     }
-  };
 
-  const handleCompleteStep = () => {
-    const updatedSteps = [...tutorialSteps];
-    updatedSteps[currentStep].isCompleted = true;
-    setProgress(((currentStep + 1) / tutorialSteps.length) * 100);
-  };
-
-  const handleQuizSubmit = () => {
-    // Simple quiz logic - in real implementation, this would be more sophisticated
-    const correctAnswers = ['#[program]', 'declare_id!', 'use anchor_lang::prelude::*'];
-    const isAnswerCorrect = correctAnswers.some(answer => 
-      userAnswer.toLowerCase().includes(answer.toLowerCase())
+    // Check for key concepts
+    const keyConcepts = expectedCode.match(/\b(use|fn|struct|impl|pub|let|mut|return)\b/g) || [];
+    const foundConcepts = keyConcepts.filter(concept => 
+      normalizedCode.includes(concept.toLowerCase())
     );
-    setIsCorrect(isAnswerCorrect);
-    if (isAnswerCorrect) {
-      handleCompleteStep();
+
+    if (foundConcepts.length >= keyConcepts.length * 0.7) {
+      return { 
+        isValid: true, 
+        message: 'Good progress! You have most of the key concepts.' 
+      };
+    }
+
+    return { 
+      isValid: false, 
+      message: 'Try again. Focus on the key concepts highlighted in the explanation.',
+      errors: keyConcepts.filter(concept => !normalizedCode.includes(concept.toLowerCase()))
+    };
+  };
+
+  const handleCodeSubmit = () => {
+    const result = validateCode(currentCode, currentStep.expectedCode);
+    setValidationResult(result);
+    setAttempts(prev => prev + 1);
+
+    if (result.isValid) {
+      const stepProgress: TutorialProgress = {
+        stepId: currentStep.id,
+        completed: true,
+        attempts: attempts + 1,
+        timeSpent,
+        hintsUsed: hintIndex,
+        completedAt: new Date()
+      };
+
+      onStepComplete(currentStep, stepProgress);
+      setIsPlaying(false);
+    }
+  };
+
+  const handleNextStep = () => {
+    if (currentStepIndex < tutorial.steps.length - 1) {
+      setCurrentStepIndex(prev => prev + 1);
+      setCurrentCode('');
+      setValidationResult(null);
+      setShowHints(false);
+      setHintIndex(0);
+      setTimeSpent(0);
+      setAttempts(0);
+      setIsPlaying(true);
+    } else {
+      // Tutorial completed
+      onComplete(tutorial, userProgress);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(prev => prev - 1);
+      setCurrentCode('');
+      setValidationResult(null);
+      setShowHints(false);
+      setHintIndex(0);
+      setTimeSpent(0);
+      setAttempts(0);
     }
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-500';
-      case 'intermediate': return 'bg-yellow-500';
-      case 'advanced': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'beginner': return 'text-green-400 bg-green-400/20';
+      case 'intermediate': return 'text-yellow-400 bg-yellow-400/20';
+      case 'advanced': return 'text-red-400 bg-red-400/20';
+      default: return 'text-gray-400 bg-gray-400/20';
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'concept': return BookOpen;
-      case 'code': return Code;
-      case 'challenge': return Target;
-      case 'quiz': return Brain;
-      default: return BookOpen;
-    }
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className={cn(
+      "h-full flex flex-col bg-black text-white",
+      isEmbedded ? "border border-gray-800 rounded-lg" : ""
+    )}>
       {/* Header */}
-      <div className="p-4 border-b border-border bg-muted/50">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">T</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">Interactive Tutorial</h1>
-              <p className="text-sm text-muted-foreground">Step {currentStep + 1} of {tutorialSteps.length}</p>
-            </div>
-          </div>
-          
+      <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900">
+        <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <Button
-              onClick={() => setIsPlaying(!isPlaying)}
-              variant="outline"
-              size="sm"
-            >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </Button>
-            <Button
-              onClick={() => setCurrentStep(0)}
-              variant="outline"
-              size="sm"
-            >
-              <RotateCcw className="h-4 w-4" />
-            </Button>
+            <BookOpen className="h-5 w-5 text-blue-400" />
+            <h2 className="text-lg font-semibold text-white">{tutorial.title}</h2>
           </div>
+          <span className={cn(
+            "px-2 py-1 rounded-full text-xs font-medium",
+            getDifficultyColor(tutorial.difficulty)
+          )}>
+            {tutorial.difficulty}
+          </span>
         </div>
-
-        {/* Progress Bar */}
-        <div className="w-full bg-muted rounded-full h-2">
-          <div 
-            className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          ></div>
+        
+        <div className="flex items-center space-x-4">
+          <div className="text-sm text-gray-400">
+            Step {currentStepIndex + 1} of {tutorial.steps.length}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Trophy className="h-4 w-4 text-yellow-400" />
+            <span className="text-sm text-yellow-400">+{currentStep.xpReward} XP</span>
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-4xl mx-auto">
-          {/* Step Header */}
-          <div className="mb-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className={`w-3 h-3 rounded-full ${getDifficultyColor(currentStepData.difficulty)}`}></div>
-              <span className="text-sm text-muted-foreground capitalize">
-                {currentStepData.difficulty}
-              </span>
-              <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>{currentStepData.estimatedTime} min</span>
-              </div>
-              <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                <Star className="h-4 w-4" />
-                <span>{currentStepData.type}</span>
+      {/* Progress Bar */}
+      <div className="h-1 bg-gray-800">
+        <div 
+          className="h-full bg-blue-600 transition-all duration-300"
+          style={{ width: `${((currentStepIndex + 1) / tutorial.steps.length) * 100}%` }}
+        />
+      </div>
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel - Tutorial Content */}
+        <div className="w-1/2 border-r border-gray-800 p-6 overflow-y-auto">
+          <div className="space-y-6">
+            {/* Step Header */}
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">{currentStep.title}</h3>
+              <div className="flex items-center space-x-4 text-sm text-gray-400">
+                <div className="flex items-center space-x-1">
+                  <Target className="h-4 w-4" />
+                  <span>{currentStep.estimatedTime} min</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Code className="h-4 w-4" />
+                  <span>{currentStep.type}</span>
+                </div>
               </div>
             </div>
-            
-            <h2 className="text-3xl font-bold mb-2">{currentStepData.title}</h2>
-            <p className="text-lg text-muted-foreground">{currentStepData.description}</p>
-          </div>
 
-          {/* Step Content */}
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              {currentStepData.type === 'concept' && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-4 flex items-center">
-                    <BookOpen className="h-5 w-5 mr-2" />
-                    Concept Explanation
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    {currentStepData.explanation}
-                  </p>
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-2">Key Takeaways:</h4>
-                    <ul className="space-y-1 text-sm text-muted-foreground">
-                      <li>• Solana uses a unique consensus mechanism</li>
-                      <li>• High throughput and low latency</li>
-                      <li>• Developer-friendly with Anchor framework</li>
-                    </ul>
-                  </div>
+            {/* Step Content */}
+            <div className="prose prose-invert max-w-none">
+              <div className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+                {currentStep.content}
+              </div>
+            </div>
+
+            {/* Code Example (if applicable) */}
+            {currentStep.expectedCode && (
+              <Card className="bg-gray-900 border-gray-700">
+                <div className="p-4">
+                  <h4 className="text-sm font-medium text-white mb-2">Expected Code:</h4>
+                  <pre className="text-sm text-gray-300 bg-gray-800 p-3 rounded border overflow-x-auto">
+                    <code>{currentStep.expectedCode}</code>
+                  </pre>
                 </div>
-              )}
+              </Card>
+            )}
 
-              {currentStepData.type === 'code' && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-4 flex items-center">
-                    <Code className="h-5 w-5 mr-2" />
-                    Code Example
-                  </h3>
-                  <div className="bg-muted p-4 rounded-lg mb-4">
-                    <pre className="text-sm overflow-x-auto">
-                      <code>{currentStepData.code}</code>
-                    </pre>
+            {/* Hints */}
+            {currentStep.hints.length > 0 && (
+              <Card className="bg-blue-900/20 border-blue-700">
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-blue-300 flex items-center space-x-2">
+                      <Lightbulb className="h-4 w-4" />
+                      <span>Hints ({hintIndex + 1}/{currentStep.hints.length})</span>
+                    </h4>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (hintIndex < currentStep.hints.length - 1) {
+                          setHintIndex(prev => prev + 1);
+                        }
+                        setShowHints(true);
+                      }}
+                      disabled={hintIndex >= currentStep.hints.length - 1}
+                      className="border-blue-600 text-blue-400 hover:bg-blue-600 hover:text-white"
+                    >
+                      {hintIndex >= currentStep.hints.length - 1 ? 'All hints shown' : 'Next Hint'}
+                    </Button>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {currentStepData.explanation}
-                  </p>
-                </div>
-              )}
-
-              {currentStepData.type === 'quiz' && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-4 flex items-center">
-                    <Brain className="h-5 w-5 mr-2" />
-                    Quiz Time
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    What are the three main macros used in Anchor development?
-                  </p>
-                  <div className="space-y-4">
-                    <textarea
-                      value={userAnswer}
-                      onChange={(e) => setUserAnswer(e.target.value)}
-                      placeholder="Enter your answer here..."
-                      className="w-full p-3 border border-border rounded-lg bg-background"
-                      rows={3}
-                    />
-                    {isCorrect !== null && (
-                      <div className={`p-3 rounded-lg ${
-                        isCorrect ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
-                      }`}>
-                        {isCorrect ? 'Correct! Well done!' : 'Not quite right. Try again!'}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {currentStepData.type === 'challenge' && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-4 flex items-center">
-                    <Target className="h-5 w-5 mr-2" />
-                    Coding Challenge
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    {currentStepData.description}
-                  </p>
-                  <div className="bg-muted/50 p-4 rounded-lg mb-4">
-                    <h4 className="font-semibold mb-2">Your Task:</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Implement the increment and decrement functions for the counter program.
+                  {showHints && (
+                    <p className="text-sm text-blue-200">
+                      {currentStep.hints[hintIndex]}
                     </p>
+                  )}
+                </div>
+              </Card>
+            )}
+
+            {/* Validation Result */}
+            {validationResult && (
+              <Card className={cn(
+                "border",
+                validationResult.isValid 
+                  ? "bg-green-900/20 border-green-700" 
+                  : "bg-red-900/20 border-red-700"
+              )}>
+                <div className="p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    {validationResult.isValid ? (
+                      <CheckCircle className="h-5 w-5 text-green-400" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-red-400" />
+                    )}
+                    <span className={cn(
+                      "font-medium",
+                      validationResult.isValid ? "text-green-300" : "text-red-300"
+                    )}>
+                      {validationResult.isValid ? 'Success!' : 'Try Again'}
+                    </span>
                   </div>
-                  {showHint && (
-                    <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg mb-4">
-                      <h4 className="font-semibold text-blue-400 mb-2">💡 Hint:</h4>
-                      <p className="text-sm text-blue-300">{currentStepData.hint}</p>
+                  <p className={cn(
+                    "text-sm",
+                    validationResult.isValid ? "text-green-200" : "text-red-200"
+                  )}>
+                    {validationResult.message}
+                  </p>
+                  {validationResult.errors && (
+                    <div className="mt-2">
+                      <p className="text-xs text-red-300 mb-1">Missing concepts:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {validationResult.errors.map((error, index) => (
+                          <span key={index} className="px-2 py-1 bg-red-800 text-red-200 text-xs rounded">
+                            {error}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </Card>
+            )}
 
-          {/* Hint Button */}
-          {currentStepData.hint && (
-            <div className="mb-6">
-              <Button
-                onClick={() => setShowHint(!showHint)}
-                variant="outline"
-                className="w-full"
-              >
-                <Lightbulb className="h-4 w-4 mr-2" />
-                {showHint ? 'Hide Hint' : 'Show Hint'}
-              </Button>
+            {/* Step Stats */}
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="bg-gray-900 p-3 rounded">
+                <div className="text-lg font-bold text-white">{attempts}</div>
+                <div className="text-xs text-gray-400">Attempts</div>
+              </div>
+              <div className="bg-gray-900 p-3 rounded">
+                <div className="text-lg font-bold text-white">{formatTime(timeSpent)}</div>
+                <div className="text-xs text-gray-400">Time</div>
+              </div>
+              <div className="bg-gray-900 p-3 rounded">
+                <div className="text-lg font-bold text-white">{hintIndex}</div>
+                <div className="text-xs text-gray-400">Hints Used</div>
+              </div>
             </div>
-          )}
-
-          {/* Solution (for challenges) */}
-          {currentStepData.type === 'challenge' && showHint && currentStepData.solution && (
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Solution</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-muted p-4 rounded-lg">
-                  <pre className="text-sm overflow-x-auto">
-                    <code>{currentStepData.solution}</code>
-                  </pre>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-border bg-muted/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Button
-              onClick={handlePrevious}
-              disabled={isFirstStep}
-              variant="outline"
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            <Button
-              onClick={handleNext}
-              variant="default"
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-            >
-              {isLastStep ? 'Complete Tutorial' : 'Next'}
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
+        {/* Right Panel - Code Editor */}
+        <div className="w-1/2 flex flex-col">
+          <div className="p-4 border-b border-gray-800 bg-gray-900">
+            <h4 className="text-sm font-medium text-white">Your Code</h4>
+          </div>
+          
+          <div className="flex-1 p-4">
+            <textarea
+              value={currentCode}
+              onChange={(e) => setCurrentCode(e.target.value)}
+              placeholder="Write your code here..."
+              className="w-full h-full bg-gray-900 border border-gray-700 rounded p-4 text-white font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-600"
+              disabled={isCompleted}
+            />
           </div>
 
-          <div className="flex items-center space-x-4">
-            {currentStepData.type === 'quiz' && (
-              <Button
-                onClick={handleQuizSubmit}
-                disabled={!userAnswer.trim()}
-                variant="outline"
-              >
-                Submit Answer
-              </Button>
-            )}
-            {currentStepData.type !== 'quiz' && (
-              <Button
-                onClick={handleCompleteStep}
-                variant="outline"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Mark Complete
-              </Button>
-            )}
+          <div className="p-4 border-t border-gray-800 bg-gray-900">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  disabled={isCompleted}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setCurrentCode('');
+                    setValidationResult(null);
+                    setAttempts(0);
+                    setTimeSpent(0);
+                  }}
+                  disabled={isCompleted}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrevStep}
+                  disabled={currentStepIndex === 0}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={isCompleted ? handleNextStep : handleCodeSubmit}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {isCompleted ? (
+                    <>
+                      {currentStepIndex === tutorial.steps.length - 1 ? 'Complete Tutorial' : 'Next Step'}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  ) : (
+                    'Check Code'
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
