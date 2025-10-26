@@ -1,28 +1,24 @@
 import { Variants } from 'framer-motion';
 
-// Common animation variants for consistent animations across the app
+// Minimal animations like v0.app
 export const fadeInUp: Variants = {
   initial: { 
     opacity: 0, 
-    y: 20,
-    scale: 0.95
+    y: 4
   },
   animate: { 
     opacity: 1, 
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.4,
-      ease: [0.4, 0, 0.2, 1],
-      staggerChildren: 0.1
+      duration: 0.15,
+      ease: [0.4, 0, 0.2, 1]
     }
   },
   exit: { 
     opacity: 0, 
-    y: -20,
-    scale: 0.95,
+    y: -2,
     transition: {
-      duration: 0.3,
+      duration: 0.1,
       ease: [0.4, 0, 0.2, 1]
     }
   }
@@ -31,24 +27,21 @@ export const fadeInUp: Variants = {
 export const fadeInDown: Variants = {
   initial: { 
     opacity: 0, 
-    y: -20,
-    scale: 0.95
+    y: -4
   },
   animate: { 
     opacity: 1, 
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.4,
+      duration: 0.15,
       ease: [0.4, 0, 0.2, 1]
     }
   },
   exit: { 
     opacity: 0, 
-    y: 20,
-    scale: 0.95,
+    y: 2,
     transition: {
-      duration: 0.3,
+      duration: 0.1,
       ease: [0.4, 0, 0.2, 1]
     }
   }
@@ -57,24 +50,21 @@ export const fadeInDown: Variants = {
 export const slideInLeft: Variants = {
   initial: { 
     opacity: 0, 
-    x: -50,
-    scale: 0.95
+    x: -8
   },
   animate: { 
     opacity: 1, 
     x: 0,
-    scale: 1,
     transition: {
-      duration: 0.4,
+      duration: 0.15,
       ease: [0.4, 0, 0.2, 1]
     }
   },
   exit: { 
     opacity: 0, 
-    x: -50,
-    scale: 0.95,
+    x: -8,
     transition: {
-      duration: 0.3,
+      duration: 0.1,
       ease: [0.4, 0, 0.2, 1]
     }
   }
@@ -83,24 +73,21 @@ export const slideInLeft: Variants = {
 export const slideInRight: Variants = {
   initial: { 
     opacity: 0, 
-    x: 50,
-    scale: 0.95
+    x: 8
   },
   animate: { 
     opacity: 1, 
     x: 0,
-    scale: 1,
     transition: {
-      duration: 0.4,
+      duration: 0.15,
       ease: [0.4, 0, 0.2, 1]
     }
   },
   exit: { 
     opacity: 0, 
-    x: 50,
-    scale: 0.95,
+    x: 8,
     transition: {
-      duration: 0.3,
+      duration: 0.1,
       ease: [0.4, 0, 0.2, 1]
     }
   }
@@ -109,21 +96,21 @@ export const slideInRight: Variants = {
 export const scaleIn: Variants = {
   initial: { 
     opacity: 0, 
-    scale: 0.8
+    scale: 0.98
   },
   animate: { 
     opacity: 1, 
     scale: 1,
     transition: {
-      duration: 0.3,
+      duration: 0.2,
       ease: [0.4, 0, 0.2, 1]
     }
   },
   exit: { 
     opacity: 0, 
-    scale: 0.8,
+    scale: 0.98,
     transition: {
-      duration: 0.2,
+      duration: 0.15,
       ease: [0.4, 0, 0.2, 1]
     }
   }
@@ -133,8 +120,8 @@ export const staggerContainer: Variants = {
   initial: {},
   animate: {
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1
+      staggerChildren: 0.05,
+      delayChildren: 0.05
     }
   }
 };
@@ -142,13 +129,13 @@ export const staggerContainer: Variants = {
 export const staggerItem: Variants = {
   initial: { 
     opacity: 0, 
-    y: 20
+    y: 8
   },
   animate: { 
     opacity: 1, 
     y: 0,
     transition: {
-      duration: 0.4,
+      duration: 0.3,
       ease: [0.4, 0, 0.2, 1]
     }
   }
@@ -158,25 +145,21 @@ export const staggerItem: Variants = {
 export const pageTransition: Variants = {
   initial: { 
     opacity: 0, 
-    y: 20,
-    scale: 0.98
+    y: 8
   },
   animate: { 
     opacity: 1, 
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.5,
-      ease: [0.4, 0, 0.2, 1],
-      staggerChildren: 0.1
+      duration: 0.3,
+      ease: [0.4, 0, 0.2, 1]
     }
   },
   exit: { 
     opacity: 0, 
-    y: -20,
-    scale: 0.98,
+    y: -4,
     transition: {
-      duration: 0.3,
+      duration: 0.2,
       ease: [0.4, 0, 0.2, 1]
     }
   }
@@ -227,29 +210,29 @@ export const modalContent: Variants = {
   }
 };
 
-// Button hover animations
+// Minimal button animations like v0.app
 export const buttonHover = {
-  scale: 1.05,
-  transition: {
-    duration: 0.2,
-    ease: "easeOut"
-  }
-};
-
-export const buttonTap = {
-  scale: 0.95,
+  scale: 1.01,
   transition: {
     duration: 0.1,
     ease: "easeOut"
   }
 };
 
-// Card hover animations
-export const cardHover = {
-  y: -4,
-  scale: 1.02,
+export const buttonTap = {
+  scale: 0.99,
   transition: {
-    duration: 0.3,
+    duration: 0.05,
+    ease: "easeOut"
+  }
+};
+
+// Minimal card animations like v0.app
+export const cardHover = {
+  y: -1,
+  scale: 1.005,
+  transition: {
+    duration: 0.1,
     ease: [0.4, 0, 0.2, 1]
   }
 };

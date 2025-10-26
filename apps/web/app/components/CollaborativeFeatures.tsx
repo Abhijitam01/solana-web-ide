@@ -50,7 +50,8 @@ import {
   MessageSquare,
   Share,
   Download,
-  Upload
+  Upload,
+  DollarSign
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 

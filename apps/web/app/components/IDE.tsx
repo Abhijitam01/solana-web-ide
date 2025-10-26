@@ -15,10 +15,13 @@ import {
   Terminal as TerminalIcon,
   Bot,
   FileText,
-  Folder
+  Folder,
+  X,
+  Plus
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { fadeInUp, slideInLeft, slideInRight, staggerContainer, staggerItem } from '../../lib/animations';
+import { cn } from '../../lib/utils';
 
 interface FileNode {
   id: string;
@@ -313,40 +316,45 @@ anchor-spl = "0.29.0"`
   };
 
   return (
-    <motion.div 
-      className="h-full flex flex-col bg-black"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Main IDE Layout */}
-      <motion.div 
-        className="flex-1 flex overflow-hidden"
-        variants={staggerContainer}
-        initial="initial"
-        animate="animate"
-      >
-        {/* Left Panel - File Explorer */}
-        <motion.div 
-          className="w-64 flex-shrink-0"
-          variants={slideInLeft}
-        >
-          <FileExplorer
-            files={files}
-            activeFile={activeFile}
-            onFileSelect={handleFileSelect}
-            onFileCreate={handleFileCreate}
-            onFileDelete={handleFileDelete}
-            onFileRename={handleFileRename}
-            onFileContentChange={handleFileContentChange}
-          />
-        </motion.div>
+    <div className="h-full flex flex-col bg-white dark:bg-gray-900">
+      {/* Editor Tabs */}
+      <div className="h-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4">
+        <div className="flex items-center space-x-1">
+          {tabs.map((tab) => (
+            <div
+              key={tab.id}
+              className={cn(
+                "flex items-center space-x-2 px-3 py-1.5 text-sm rounded-t-md cursor-pointer transition-colors",
+                tab.isActive
+                  ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-b-2 border-blue-500"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50"
+              )}
+              onClick={() => handleTabChange(tab.id)}
+            >
+              <FileText className="w-4 h-4" />
+              <span>{tab.name}</span>
+              {tab.isDirty && <div className="w-2 h-2 bg-orange-500 rounded-full" />}
+              <button
+                className="ml-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded p-0.5"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTabClose(tab.id);
+                }}
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+          <button className="px-2 py-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
 
-        {/* Center Panel - Code Editor */}
-        <motion.div 
-          className="flex-1 flex flex-col"
-          variants={fadeInUp}
-        >
+      {/* Main Editor Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Code Editor */}
+        <div className="flex-1 flex flex-col">
           <CodeEditor
             tabs={tabs}
             activeTabId={activeFile}
@@ -358,13 +366,10 @@ anchor-spl = "0.29.0"`
             onDeploy={handleDeploy}
             theme={theme === 'system' ? 'dark' : theme}
           />
-        </motion.div>
+        </div>
 
         {/* Right Panel - AI Assistant */}
-        <motion.div 
-          className="w-80 flex-shrink-0"
-          variants={slideInRight}
-        >
+        <div className="w-80 flex-shrink-0 border-l border-gray-200 dark:border-gray-700">
           <AIPanel
             selectedCode={selectedCode}
             onApplyCode={(code) => {
@@ -390,23 +395,18 @@ anchor-spl = "0.29.0"`
               // This would trigger AI security review
             }}
           />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Bottom Panel - Terminal */}
-      <motion.div
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-        transition={{ delay: 0.3 }}
-      >
+      <div>
         <TerminalPanel
           isOpen={showTerminal}
           onToggle={() => setShowTerminal(!showTerminal)}
           onCommand={handleTerminalCommand}
           onSimplifyError={handleSimplifyError}
         />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
