@@ -7,9 +7,8 @@ import {
   Play, 
   Pause, 
   Square, 
-  StepOver, 
-  StepInto, 
-  StepOut,
+  SkipForward, 
+  SkipBack, 
   RotateCcw,
   Eye,
   EyeOff,
@@ -418,7 +417,7 @@ export default function AdvancedDebugger({
             disabled={!debugState.isRunning || !debugState.isPaused}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            <StepOver className="h-4 w-4 mr-2" />
+            <SkipForward className="h-4 w-4 mr-2" />
             Step Over
           </Button>
           <Button
@@ -427,7 +426,7 @@ export default function AdvancedDebugger({
             disabled={!debugState.isRunning || !debugState.isPaused}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            <StepInto className="h-4 w-4 mr-2" />
+            <SkipBack className="h-4 w-4 mr-2" />
             Step Into
           </Button>
           <Button
@@ -436,7 +435,7 @@ export default function AdvancedDebugger({
             disabled={!debugState.isRunning || !debugState.isPaused}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            <StepOut className="h-4 w-4 mr-2" />
+            <RotateCcw className="h-4 w-4 mr-2" />
             Step Out
           </Button>
           <Button
