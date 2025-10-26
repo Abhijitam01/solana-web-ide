@@ -1,85 +1,48 @@
-# 🚀 Solana AI IDE
+# 🚀 Modern Solana Browser IDE
 
-> **The ultimate AI-powered development environment for Solana blockchain**
-
-Build, deploy, and learn Solana programs with integrated AI assistance, wallet connection, and modern web IDE. Think of it as "Cursor meets Remix, but for Solana."
+A comprehensive, AI-powered browser IDE for Solana development with interactive learning, real-time collaboration, and seamless deployment.
 
 ## ✨ Features
 
-### 🧩 AI-Powered Code Assistance
-- Built-in AI chat trained specifically on Solana + Anchor codebases
-- Understands Solana-specific concepts like PDAs, Accounts, CPI, and instruction serialization
-- Generates and explains contract code snippets
-- Suggests optimizations and security improvements
+### 🎯 **Core IDE Features**
+- **VS Code-like Interface**: Multi-panel layout with file explorer, code editor, AI assistant, and terminal
+- **Monaco Editor**: Full-featured code editor with syntax highlighting, IntelliSense, and error detection
+- **AI-Powered Development**: Inline code suggestions, explanations, optimization, and security reviews
+- **One-Click Deployment**: Deploy to devnet, testnet, or mainnet with a single click
+- **Error Simplification**: AI-powered error explanations in plain English
 
-### ⚙️ One-Click Build & Deploy
-- Integrated Anchor compiler and Solana test-validator
-- Click a button → builds the program, deploys to Devnet
-- Works seamlessly with Phantom, Solflare, or Backpack wallets
-- "Compile → Deploy → Interact" in one flow
+### 🎓 **Learning & Education**
+- **Interactive Tutorials**: Step-by-step guided coding with real-time validation
+- **Comprehensive Contract Library**: Curated examples from beginner to advanced
+- **AI Learning Assistant**: Personalized learning paths and concept explanations
+- **Gamified Learning**: Achievements, XP points, daily challenges, and leaderboards
+- **Visual Program Builder**: Drag-and-drop interface for building Solana programs
 
-### 🎨 Modern, Elegant Web IDE
-- Monaco Editor (VSCode-like experience)
-- Auto dark mode
-- File explorer, tabs, and syntax highlighting
-- Template gallery for common contracts
+### 🤝 **Collaboration & Community**
+- **Live Coding Sessions**: Real-time collaborative development
+- **Study Groups**: Join learning communities and coding sessions
+- **Mentorship Platform**: Connect with experienced developers
+- **Code Review System**: Get feedback and suggestions from the community
 
-### 🧭 AI Mentor Mode
-- Toggle switch that turns the AI into a mentor
-- Explains contract structure line-by-line
-- Generates interactive tutorials
-- Contextual feedback and learning
-
-### 🏗️ Auto Frontend Generator
-- Analyzes contract's instruction schema
-- Auto-generates Next.js frontend boilerplate with wallet connection
-- React hooks for contract interaction
-- Export to Vercel with one click
-
-### 🧰 Template Gallery
-- Battle-tested open-source Solana templates
-- AI-generated ready-to-deploy projects
-- Examples: NFT mint, token vault, DAO voting, airdrop programs
-
-## 🏗️ Architecture
-
-```
-Layer                Tech Stack                    Description
-Frontend            Next.js 15 + TypeScript +     Rich web IDE, chat UI, file system
-                    Tailwind + shadcn/ui +        contract editor
-                    Monaco
-
-Backend             Express + Node.js + OpenAI     API routes for compiling, deploying,
-                    API + Solana Web3.js +        AI chat, mentor mode
-                    Anchor
-
-Blockchain Layer    Solana Devnet/Test Validator  Smart contract build/deploy testing
-
-AI Layer            OpenAI GPT-4o-mini            Code generation, explanation, and
-                    (fine-tuned for Solana)       debugging
-
-Infra               Turborepo + Docker +          Scalable modular structure
-                    PostgreSQL
-
-Deployment          DigitalOcean App Platform /   Simple cloud deploys for hackathon
-                    Vercel / Railway              or production
-```
+### 🛠 **Advanced Development Tools**
+- **Step-through Debugger**: Debug Solana programs with account inspection
+- **CI/CD Integration**: GitHub Actions integration with environment management
+- **Real-world Templates**: Production-ready templates for NFT marketplace, DEX, DAO, etc.
+- **Mobile Optimization**: Touch-friendly interface for mobile development
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
-- Node.js 18+
+- Node.js 18+ 
 - pnpm (recommended) or npm
-- OpenAI API key
-- Solana CLI (for local development)
+- Git
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/solana-ai-ide.git
-   cd solana-ai-ide
+   git clone <repository-url>
+   cd solana-web
    ```
 
 2. **Install dependencies**
@@ -87,140 +50,185 @@ Deployment          DigitalOcean App Platform /   Simple cloud deploys for hacka
    pnpm install
    ```
 
-3. **Set up environment variables**
+3. **Start the development servers**
    ```bash
-   # Backend
-   cd apps/http-backend
-   cp env.example .env
-   # Add your OpenAI API key to .env
-   ```
-
-4. **Start the development servers**
-   ```bash
-   # From the root directory
+   # Start both frontend and backend
    pnpm dev
+   
+   # Or start individually
+   pnpm dev --filter web          # Frontend (port 3000)
+   pnpm dev --filter http-backend # Backend (port 3001)
    ```
 
-   This will start:
+4. **Open your browser**
    - Frontend: http://localhost:3000
-   - Backend: http://localhost:3001
+   - Backend API: http://localhost:3001
 
-### Environment Variables
+## 🧪 Testing
 
-Create a `.env` file in `apps/http-backend/`:
+### Run Tests
+```bash
+# Run all tests
+pnpm test
 
-```env
-# OpenAI API Key for AI assistance
-OPENAI_API_KEY=your_openai_api_key_here
+# Run tests in watch mode
+pnpm test:watch
 
-# Solana RPC Endpoint (optional, defaults to devnet)
-SOLANA_RPC_URL=https://api.devnet.solana.com
+# Run tests with coverage
+pnpm test:coverage
 
-# Server Port (optional, defaults to 3001)
-PORT=3001
+# Run tests for CI
+pnpm test:ci
 ```
 
-## 🎯 Usage
+### Test Structure
+```
+apps/web/__tests__/
+├── components/          # Component unit tests
+├── pages/              # Page integration tests
+└── integration/        # End-to-end workflow tests
+```
 
-### 1. **Start Coding**
-- Open the IDE in your browser
-- Choose a template or start from scratch
-- Write your Solana program in Rust
+## 🏗 Project Structure
 
-### 2. **AI Assistance**
-- Use the chat panel to ask questions
-- Generate contracts from descriptions
-- Get code explanations and optimizations
+```
+solana-web/
+├── apps/
+│   ├── web/                    # Next.js frontend application
+│   │   ├── app/               # App router pages and components
+│   │   │   ├── components/    # Reusable UI components
+│   │   │   ├── learn/         # Learning dashboard
+│   │   │   ├── tutorials/     # Interactive tutorials
+│   │   │   ├── sandbox/       # Sandbox environment
+│   │   │   └── docs/          # Documentation system
+│   │   ├── __tests__/         # Test files
+│   │   └── globals.css        # Global styles and design system
+│   └── http-backend/          # Express.js backend API
+│       ├── api/               # API endpoints
+│       ├── lib/               # Utility libraries
+│       └── middleware/        # Express middleware
+├── packages/
+│   └── ui/                    # Shared UI components
+└── docs/                      # Project documentation
+```
 
-### 3. **Compile & Deploy**
-- Click the "Compile" button to build your program
-- Connect your wallet (Phantom, Solflare, etc.)
-- Deploy to Solana Devnet with one click
+## 🎨 Design System
 
-### 4. **Generate Frontend**
-- After deployment, generate a Next.js frontend
-- Customize the UI and export to Vercel
+### Color Palette
+- **Primary**: Black (#000000) and White (#FFFFFF)
+- **Accent**: Blue (#0066FF, #3B82F6) for highlights and interactive elements
+- **Background**: Pure blacks (#000, #0A0A0A) and dark grays (#1A1A1A, #2A2A2A)
+- **Success**: Blue-green (#00B4D8)
+- **Error**: Red (#EF4444) with blue undertones
 
-## 🧰 Available Templates
+### Typography
+- **Headings**: Bold, clean typography with proper hierarchy
+- **Body**: Readable font sizes with optimal line spacing
+- **Code**: Monaco Editor with syntax highlighting
 
-- **NFT Mint Program** - Complete NFT minting with metadata
-- **Token Vault** - Secure token storage and management
-- **DAO Voting** - Decentralized governance voting system
-- **Token Airdrop** - Automated token distribution
-- **Marketplace Listing** - NFT marketplace functionality
-
-## 🤖 AI Commands
-
-The AI assistant understands these commands:
-
-- `"Generate an NFT minting program"`
-- `"Explain this PDA usage"`
-- `"Fix my CPI error"`
-- `"Optimize this contract for gas"`
-- `"Create a token vault with multi-sig"`
+### Animations
+- **Smooth Transitions**: 250ms cubic-bezier easing
+- **Micro-interactions**: Hover effects, scale transforms, and glow effects
+- **Loading States**: Skeleton loaders and smooth loading transitions
 
 ## 🔧 Development
 
-### Project Structure
+### Available Scripts
 
+#### Frontend (apps/web)
+```bash
+pnpm dev              # Start development server
+pnpm build            # Build for production
+pnpm start            # Start production server
+pnpm lint             # Run ESLint
+pnpm check-types      # Run TypeScript type checking
+pnpm test             # Run tests
+pnpm test:watch       # Run tests in watch mode
+pnpm test:coverage    # Run tests with coverage
 ```
-solana-ai-ide/
-├── apps/
-│   ├── web/                 # Next.js frontend
-│   ├── http-backend/        # Express API server
-│   └── ws-backend/          # WebSocket server (future)
-├── packages/
-│   ├── ui/                  # Shared UI components
-│   ├── eslint-config/       # Shared ESLint config
-│   └── typescript-config/  # Shared TypeScript config
-└── turbo.json              # Turborepo configuration
+
+#### Backend (apps/http-backend)
+```bash
+pnpm dev              # Start development server
+pnpm build            # Build for production
+pnpm start            # Start production server
+pnpm lint             # Run ESLint
 ```
 
-### Adding New Templates
+### Environment Variables
 
-1. Add template to `apps/http-backend/src/index.ts`
-2. Create template code in the `templateCode` object
-3. Update the templates array with metadata
+Create `.env.local` files in the respective app directories:
 
-### Extending AI Capabilities
+#### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
+NEXT_PUBLIC_ANCHOR_PROGRAM_ID=your_program_id_here
+```
 
-The AI system can be extended by:
-
-1. Adding new system prompts in `/api/ai/chat`
-2. Creating specialized endpoints for different contract types
-3. Integrating with additional AI models
+#### Backend (.env)
+```env
+PORT=3001
+SOLANA_RPC_URL=https://api.devnet.solana.com
+ANCHOR_PROGRAM_ID=your_program_id_here
+OPENAI_API_KEY=your_openai_api_key_here
+```
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-
+### Frontend (Vercel)
 1. Connect your GitHub repository to Vercel
 2. Set environment variables in Vercel dashboard
-3. Deploy automatically on push
+3. Deploy automatically on push to main branch
 
-### DigitalOcean App Platform
-
-1. Create a new app from GitHub
+### Backend (Railway/Heroku)
+1. Connect your GitHub repository
 2. Set environment variables
-3. Deploy with automatic scaling
-
-### Railway
-
-1. Connect GitHub repository
-2. Add environment variables
-3. Deploy with one click
+3. Deploy automatically on push to main branch
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Setup
-
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+- Follow the existing code style and conventions
+- Write tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting PR
+
+## 📚 Documentation
+
+- [API Documentation](./docs/api.md)
+- [Component Library](./docs/components.md)
+- [Deployment Guide](./docs/deployment.md)
+- [Contributing Guide](./docs/contributing.md)
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Port already in use**
+   ```bash
+   # Kill processes on ports 3000 and 3001
+   pkill -f "node.*3000\|node.*3001"
+   ```
+
+2. **Dependencies not installing**
+   ```bash
+   # Clear cache and reinstall
+   pnpm store prune
+   pnpm install
+   ```
+
+3. **Tests failing**
+   ```bash
+   # Clear Jest cache
+   pnpm test --clearCache
+   ```
 
 ## 📄 License
 
@@ -229,18 +237,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [Solana](https://solana.com/) - The blockchain platform
-- [Anchor](https://www.anchor-lang.com/) - The Solana framework
-- [OpenAI](https://openai.com/) - AI capabilities
-- [Monaco Editor](https://microsoft.github.io/monaco-editor/) - Code editor
+- [Anchor](https://www.anchor-lang.com/) - Solana development framework
 - [Next.js](https://nextjs.org/) - React framework
-- [Turborepo](https://turbo.build/) - Monorepo tooling
+- [Monaco Editor](https://microsoft.github.io/monaco-editor/) - Code editor
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 
 ## 📞 Support
 
-- 📧 Email: support@solana-ai-ide.com
-- 💬 Discord: [Join our community](https://discord.gg/solana-ai-ide)
-- 🐛 Issues: [GitHub Issues](https://github.com/your-username/solana-ai-ide/issues)
-- 📖 Docs: [Documentation](https://docs.solana-ai-ide.com)
+- 📧 Email: support@solanaide.com
+- 💬 Discord: [Join our community](https://discord.gg/solanaide)
+- 🐛 Issues: [GitHub Issues](https://github.com/your-org/solana-web/issues)
+- 📖 Docs: [Documentation](https://docs.solanaide.com)
 
 ---
 

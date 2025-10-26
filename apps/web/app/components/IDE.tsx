@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@repo/ui/button';
 import FileExplorer from './FileExplorer';
 import CodeEditor from './CodeEditor';
@@ -17,6 +18,7 @@ import {
   Folder
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
+import { fadeInUp, slideInLeft, slideInRight, staggerContainer, staggerItem } from '../../lib/animations';
 
 interface FileNode {
   id: string;
@@ -311,11 +313,24 @@ anchor-spl = "0.29.0"`
   };
 
   return (
-    <div className="h-full flex flex-col bg-black">
+    <motion.div 
+      className="h-full flex flex-col bg-black"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Main IDE Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <motion.div 
+        className="flex-1 flex overflow-hidden"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
         {/* Left Panel - File Explorer */}
-        <div className="w-64 flex-shrink-0">
+        <motion.div 
+          className="w-64 flex-shrink-0"
+          variants={slideInLeft}
+        >
           <FileExplorer
             files={files}
             activeFile={activeFile}
@@ -325,10 +340,13 @@ anchor-spl = "0.29.0"`
             onFileRename={handleFileRename}
             onFileContentChange={handleFileContentChange}
           />
-        </div>
+        </motion.div>
 
         {/* Center Panel - Code Editor */}
-        <div className="flex-1 flex flex-col">
+        <motion.div 
+          className="flex-1 flex flex-col"
+          variants={fadeInUp}
+        >
           <CodeEditor
             tabs={tabs}
             activeTabId={activeFile}
@@ -338,12 +356,15 @@ anchor-spl = "0.29.0"`
             onSave={handleSave}
             onCompile={handleCompile}
             onDeploy={handleDeploy}
-            theme={theme}
+            theme={theme === 'system' ? 'dark' : theme}
           />
-        </div>
+        </motion.div>
 
         {/* Right Panel - AI Assistant */}
-        <div className="w-80 flex-shrink-0">
+        <motion.div 
+          className="w-80 flex-shrink-0"
+          variants={slideInRight}
+        >
           <AIPanel
             selectedCode={selectedCode}
             onApplyCode={(code) => {
@@ -369,16 +390,23 @@ anchor-spl = "0.29.0"`
               // This would trigger AI security review
             }}
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Bottom Panel - Terminal */}
-      <TerminalPanel
-        isOpen={showTerminal}
-        onToggle={() => setShowTerminal(!showTerminal)}
-        onCommand={handleTerminalCommand}
-        onSimplifyError={handleSimplifyError}
-      />
-    </div>
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        transition={{ delay: 0.3 }}
+      >
+        <TerminalPanel
+          isOpen={showTerminal}
+          onToggle={() => setShowTerminal(!showTerminal)}
+          onCommand={handleTerminalCommand}
+          onSimplifyError={handleSimplifyError}
+        />
+      </motion.div>
+    </motion.div>
   );
 }
