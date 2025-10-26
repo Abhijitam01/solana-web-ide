@@ -60,7 +60,8 @@ export default function Sidebar({ onClose, currentView, onViewChange }: SidebarP
   ];
 
   const navigationItems = [
-    { id: 'learn', label: 'Learn', icon: BookOpen, description: 'Interactive tutorials and courses' },
+    { id: 'learn', label: 'Learn', icon: BookOpen, description: 'Learning dashboard and progress' },
+    { id: 'tutorials', label: 'Tutorials', icon: Star, description: 'Interactive tutorials and courses' },
     { id: 'code', label: 'Code', icon: Code, description: 'IDE and development tools' },
     { id: 'community', label: 'Community', icon: Users, description: 'Study groups and mentors' },
   ];
@@ -87,12 +88,12 @@ export default function Sidebar({ onClose, currentView, onViewChange }: SidebarP
             return (
               <button
                 key={item.id}
-                onClick={() => onViewChange?.(item.id as 'learn' | 'code' | 'community')}
+                onClick={() => onViewChange?.(item.id as 'learn' | 'tutorials' | 'code' | 'community')}
                 className={cn(
                   "w-full flex items-center space-x-3 p-4 rounded-xl text-left transition-all duration-300",
                   currentView === item.id
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
-                    : "hover:bg-white/10 text-white/70 hover:text-white"
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "hover:bg-gray-800 text-gray-300 hover:text-white"
                 )}
               >
                 <Icon className="h-5 w-5" />
