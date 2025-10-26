@@ -12,6 +12,7 @@ import Sidebar from './components/Sidebar';
 import AuthModal from './components/AuthModal';
 import LandingPage from './landing/page';
 import LearningDashboard from './learn/page';
+import TutorialsPage from './tutorials/page';
 import { cn } from '../lib/utils';
 import { useTheme } from './components/ThemeProvider';
 
@@ -28,7 +29,7 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState(null);
-  const [currentView, setCurrentView] = useState<'learn' | 'code' | 'community'>('learn');
+  const [currentView, setCurrentView] = useState<'learn' | 'tutorials' | 'code' | 'community'>('learn');
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -94,6 +95,7 @@ export default function Home() {
               )}
               <main className="flex-1 overflow-hidden bg-transparent">
                 {currentView === 'learn' && <LearningDashboard />}
+                {currentView === 'tutorials' && <TutorialsPage />}
                 {currentView === 'code' && <IDE />}
                 {currentView === 'community' && (
                   <div className="h-full flex items-center justify-center bg-black">

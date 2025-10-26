@@ -21,8 +21,8 @@ import { cn } from '../../lib/utils';
 
 interface SidebarProps {
   onClose: () => void;
-  currentView?: 'learn' | 'code' | 'community';
-  onViewChange?: (view: 'learn' | 'code' | 'community') => void;
+  currentView?: 'learn' | 'tutorials' | 'code' | 'community';
+  onViewChange?: (view: 'learn' | 'tutorials' | 'code' | 'community') => void;
 }
 
 interface Template {

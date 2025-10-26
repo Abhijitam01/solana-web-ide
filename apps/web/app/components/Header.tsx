@@ -79,6 +79,19 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
           <span className="hidden sm:inline font-medium">Learn</span>
         </Button>
         <Button
+          variant={currentView === 'tutorials' ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => onViewChange?.('tutorials')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+            currentView === 'tutorials' 
+              ? 'bg-blue-600 text-white shadow-lg' 
+              : 'text-gray-300 hover:text-white hover:bg-gray-800'
+          }`}
+        >
+          <Play className="h-4 w-4" />
+          <span className="hidden sm:inline font-medium">Tutorials</span>
+        </Button>
+        <Button
           variant={currentView === 'code' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => onViewChange?.('code')}
