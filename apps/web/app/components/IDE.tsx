@@ -1,35 +1,51 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Editor } from '@monaco-editor/react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@repo/ui/button';
-import { Card } from '@repo/ui/card';
-import { Code } from '@repo/ui/code';
-import Terminal from './Terminal';
+import FileExplorer from './FileExplorer';
+import CodeEditor from './CodeEditor';
+import AIPanel from './AIPanel';
+import TerminalPanel from './TerminalPanel';
 import { 
   Play, 
   Save, 
-  Download, 
-  Upload, 
-  Wand2, 
-  Bug, 
   Rocket,
-  FileText,
   Settings,
-  Shield,
-  Lightbulb,
-  BookOpen,
-  Zap,
   Terminal as TerminalIcon,
-  Bot
+  Bot,
+  FileText,
+  Folder
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
+
+interface FileNode {
+  id: string;
+  name: string;
+  type: 'file' | 'folder';
+  children?: FileNode[];
+  content?: string;
+  isOpen?: boolean;
+}
+
+interface EditorTab {
+  id: string;
+  name: string;
+  content: string;
+  language: string;
+  isDirty: boolean;
+  isActive: boolean;
+}
 
 interface IDEProps {}
 
 export default function IDE({}: IDEProps) {
   const { theme } = useTheme();
-  const [code, setCode] = useState(`use anchor_lang::prelude::*;
+  const [files, setFiles] = useState<FileNode[]>([
+    {
+      id: 'lib.rs',
+      name: 'lib.rs',
+      type: 'file',
+      content: `use anchor_lang::prelude::*;
 
 declare_id!("11111111111111111111111111111111");
 
@@ -68,74 +84,151 @@ pub struct Increment<'info> {
 #[account]
 pub struct Counter {
     pub count: u64,
-}`);
+}`
+    },
+    {
+      id: 'Cargo.toml',
+      name: 'Cargo.toml',
+      type: 'file',
+      content: `[package]
+name = "hello-world"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
 
-  const [aiResponse, setAiResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('editor');
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "hello_world"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"
+anchor-spl = "0.29.0"`
+    }
+  ]);
+
+  const [tabs, setTabs] = useState<EditorTab[]>([
+    {
+      id: 'lib.rs',
+      name: 'lib.rs',
+      content: files[0]?.content || '',
+      language: 'rust',
+      isDirty: false,
+      isActive: true
+    }
+  ]);
+
+  const [activeFile, setActiveFile] = useState('lib.rs');
+  const [selectedCode, setSelectedCode] = useState('');
   const [showTerminal, setShowTerminal] = useState(false);
-  const editorRef = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleEditorDidMount = (editor: any) => {
-    editorRef.current = editor;
-  };
-
-  const handleCodeChange = (value: string | undefined) => {
-    if (value !== undefined) {
-      setCode(value);
+  // File management functions
+  const handleFileSelect = (fileId: string) => {
+    setActiveFile(fileId);
+    const file = files.find(f => f.id === fileId);
+    if (file && file.content) {
+      // Check if tab already exists
+      const existingTab = tabs.find(tab => tab.id === fileId);
+      if (!existingTab) {
+        const newTab: EditorTab = {
+          id: fileId,
+          name: file.name,
+          content: file.content,
+          language: file.name.endsWith('.rs') ? 'rust' : 'toml',
+          isDirty: false,
+          isActive: true
+        };
+        setTabs(prev => [...prev.map(tab => ({ ...tab, isActive: false })), newTab]);
+      } else {
+        setTabs(prev => prev.map(tab => ({ ...tab, isActive: tab.id === fileId })));
+      }
     }
   };
 
-  const handleAIAssist = async (type: 'generate' | 'explain' | 'optimize' | 'test' | 'security' | 'improve' | 'document') => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/ai/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: code,
-          type,
-        }),
-      });
+  const handleFileCreate = (parentId: string, name: string, type: 'file' | 'folder') => {
+    const newFile: FileNode = {
+      id: `${name}-${Date.now()}`,
+      name,
+      type,
+      content: type === 'file' ? '// New file\n' : undefined,
+      isOpen: type === 'folder' ? false : undefined
+    };
+    setFiles(prev => [...prev, newFile]);
+  };
 
-      const data = await response.json();
-      setAiResponse(data.content);
-      setActiveTab('ai');
-    } catch (error) {
-      console.error('AI request failed:', error);
-      setAiResponse('Error: Failed to get AI assistance');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleFileDelete = (fileId: string) => {
+    setFiles(prev => prev.filter(f => f.id !== fileId));
+    setTabs(prev => prev.filter(tab => tab.id !== fileId));
+  };
+
+  const handleFileRename = (fileId: string, newName: string) => {
+    setFiles(prev => prev.map(f => f.id === fileId ? { ...f, name: newName } : f));
+    setTabs(prev => prev.map(tab => tab.id === fileId ? { ...tab, name: newName } : tab));
+  };
+
+  const handleFileContentChange = (fileId: string, content: string) => {
+    setFiles(prev => prev.map(f => f.id === fileId ? { ...f, content } : f));
+    setTabs(prev => prev.map(tab => 
+      tab.id === fileId 
+        ? { ...tab, content, isDirty: true }
+        : tab
+    ));
+  };
+
+  // Tab management functions
+  const handleTabChange = (tabId: string) => {
+    setTabs(prev => prev.map(tab => ({ ...tab, isActive: tab.id === tabId })));
+    setActiveFile(tabId);
+  };
+
+  const handleTabClose = (tabId: string) => {
+    setTabs(prev => {
+      const newTabs = prev.filter(tab => tab.id !== tabId);
+      if (newTabs.length > 0) {
+        const lastTab = newTabs[newTabs.length - 1];
+        newTabs[newTabs.length - 1] = { ...lastTab, isActive: true };
+        setActiveFile(lastTab.id);
+      }
+      return newTabs;
+    });
+  };
+
+  const handleSave = (tabId: string) => {
+    setTabs(prev => prev.map(tab => 
+      tab.id === tabId ? { ...tab, isDirty: false } : tab
+    ));
+    // Here you would save to backend
+    console.log('Saving file:', tabId);
   };
 
   const handleCompile = async () => {
     setIsLoading(true);
     try {
+      const activeTab = tabs.find(tab => tab.isActive);
+      if (!activeTab) return;
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/compile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          programCode: code,
+          programCode: activeTab.content,
           programName: 'program',
         }),
       });
 
       const data = await response.json();
-      
-      if (data.success) {
-        setAiResponse(`✅ Compilation successful!\n\nOutput: ${data.output}\n\nArtifacts generated: ${data.artifacts?.length || 0} files`);
-      } else {
-        setAiResponse(`❌ Compilation failed!\n\nErrors: ${data.errors || data.error}\n\nOutput: ${data.output}`);
-      }
-      setActiveTab('ai');
+      console.log('Compilation result:', data);
     } catch (error) {
       console.error('Compilation failed:', error);
-      setAiResponse('Error: Compilation failed - Could not connect to server');
     } finally {
       setIsLoading(false);
     }
@@ -144,14 +237,17 @@ pub struct Counter {
   const handleDeploy = async () => {
     setIsLoading(true);
     try {
-      // First compile the program to get artifacts
+      const activeTab = tabs.find(tab => tab.isActive);
+      if (!activeTab) return;
+
+      // First compile
       const compileResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/compile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          programCode: code,
+          programCode: activeTab.content,
           programName: 'program',
         }),
       });
@@ -159,22 +255,17 @@ pub struct Counter {
       const compileData = await compileResponse.json();
       
       if (!compileData.success) {
-        setAiResponse(`❌ Cannot deploy - compilation failed!\n\nErrors: ${compileData.errors || compileData.error}`);
-        setActiveTab('ai');
-        setIsLoading(false);
+        console.error('Compilation failed:', compileData.error);
         return;
       }
 
-      // Get the program artifact
+      // Then deploy
       const programArtifact = compileData.artifacts?.find((a: any) => a.type === 'program');
       if (!programArtifact) {
-        setAiResponse('❌ Cannot deploy - no program artifact found');
-        setActiveTab('ai');
-        setIsLoading(false);
+        console.error('No program artifact found');
         return;
       }
 
-      // Deploy the program
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/deploy`, {
         method: 'POST',
         headers: {
@@ -187,244 +278,107 @@ pub struct Counter {
       });
 
       const data = await response.json();
-      
-      if (data.success) {
-        setAiResponse(`🚀 Deployment successful!\n\nProgram ID: ${data.programId}\nTransaction: ${data.signature}\nExplorer: ${data.explorerUrl}`);
-      } else {
-        setAiResponse(`❌ Deployment failed!\n\nError: ${data.error}`);
-      }
-      setActiveTab('ai');
+      console.log('Deployment result:', data);
     } catch (error) {
       console.error('Deployment failed:', error);
-      setAiResponse('Error: Deployment failed - Could not connect to server');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleTerminalCommand = async (command: string) => {
-    // Handle terminal commands here
     console.log('Terminal command:', command);
+    // Handle terminal commands here
+  };
+
+  const handleSimplifyError = async (errorId: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/error-simplification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          errorMessage: errorId, // This would be the actual error message
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Error simplification result:', data);
+    } catch (error) {
+      console.error('Error simplification failed:', error);
+    }
   };
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between p-6 border-b border-white/10 bg-black/20 backdrop-blur-xl">
-        <div className="flex items-center space-x-3 flex-wrap">
-          <Button
-            onClick={() => handleAIAssist('generate')}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-          >
-            <Wand2 className="w-4 h-4 mr-2" />
-            Generate
-          </Button>
-          <Button
-            onClick={() => handleAIAssist('explain')}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Explain
-          </Button>
-          <Button
-            onClick={() => handleAIAssist('optimize')}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Optimize
-          </Button>
-          <Button
-            onClick={() => handleAIAssist('security')}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-          >
-            <Shield className="w-4 h-4 mr-2" />
-            Security
-          </Button>
-          <Button
-            onClick={() => handleAIAssist('improve')}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-          >
-            <Lightbulb className="w-4 h-4 mr-2" />
-            Improve
-          </Button>
-          <Button
-            onClick={() => handleAIAssist('test')}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-          >
-            <Bug className="w-4 h-4 mr-2" />
-            Tests
-          </Button>
-          <Button
-            onClick={() => handleAIAssist('document')}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-          >
-            <BookOpen className="w-4 h-4 mr-2" />
-            Docs
-          </Button>
+    <div className="h-full flex flex-col bg-black">
+      {/* Main IDE Layout */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel - File Explorer */}
+        <div className="w-64 flex-shrink-0">
+          <FileExplorer
+            files={files}
+            activeFile={activeFile}
+            onFileSelect={handleFileSelect}
+            onFileCreate={handleFileCreate}
+            onFileDelete={handleFileDelete}
+            onFileRename={handleFileRename}
+            onFileContentChange={handleFileContentChange}
+          />
         </div>
-        
-        <div className="flex items-center space-x-3">
-          <Button
-            onClick={() => setShowTerminal(!showTerminal)}
-            variant="outline"
-            size="sm"
-            className={`border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30 ${
-              showTerminal ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-300 border-blue-500/30' : ''
-            }`}
-          >
-            <TerminalIcon className="w-4 h-4 mr-2" />
-            Terminal
-          </Button>
-          <Button
-            onClick={handleCompile}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
-          >
-            <Play className="w-4 h-4 mr-2" />
-            Compile
-          </Button>
-          <Button
-            onClick={handleDeploy}
-            disabled={isLoading}
-            size="sm"
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg"
-          >
-            <Rocket className="w-4 h-4 mr-2" />
-            Deploy
-          </Button>
+
+        {/* Center Panel - Code Editor */}
+        <div className="flex-1 flex flex-col">
+          <CodeEditor
+            tabs={tabs}
+            activeTabId={activeFile}
+            onTabChange={handleTabChange}
+            onTabClose={handleTabClose}
+            onContentChange={handleFileContentChange}
+            onSave={handleSave}
+            onCompile={handleCompile}
+            onDeploy={handleDeploy}
+            theme={theme}
+          />
+        </div>
+
+        {/* Right Panel - AI Assistant */}
+        <div className="w-80 flex-shrink-0">
+          <AIPanel
+            selectedCode={selectedCode}
+            onApplyCode={(code) => {
+              const activeTab = tabs.find(tab => tab.isActive);
+              if (activeTab) {
+                handleFileContentChange(activeTab.id, code);
+              }
+            }}
+            onExplainCode={(code) => {
+              setSelectedCode(code);
+              // This would trigger AI explanation
+            }}
+            onOptimizeCode={(code) => {
+              setSelectedCode(code);
+              // This would trigger AI optimization
+            }}
+            onGenerateTests={(code) => {
+              setSelectedCode(code);
+              // This would trigger AI test generation
+            }}
+            onSecurityReview={(code) => {
+              setSelectedCode(code);
+              // This would trigger AI security review
+            }}
+          />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex">
-        {/* Editor */}
-        <div className="flex-1 flex flex-col">
-          <div className="flex border-b border-white/10 bg-black/10">
-            <button
-              onClick={() => setActiveTab('editor')}
-              className={`px-6 py-3 text-sm font-medium transition-all duration-300 ${
-                activeTab === 'editor'
-                  ? 'border-b-2 border-purple-500 text-purple-400 bg-white/5'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Editor
-            </button>
-            <button
-              onClick={() => setActiveTab('ai')}
-              className={`px-6 py-3 text-sm font-medium transition-all duration-300 ${
-                activeTab === 'ai'
-                  ? 'border-b-2 border-purple-500 text-purple-400 bg-white/5'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              AI Assistant
-            </button>
-            {showTerminal && (
-              <button
-                onClick={() => setActiveTab('terminal')}
-                className={`px-6 py-3 text-sm font-medium transition-all duration-300 ${
-                  activeTab === 'terminal'
-                    ? 'border-b-2 border-purple-500 text-purple-400 bg-white/5'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Terminal
-              </button>
-            )}
-          </div>
-          
-          <div className="flex-1">
-            {activeTab === 'editor' ? (
-              <Editor
-                height="100%"
-                defaultLanguage="rust"
-                value={code}
-                onChange={handleCodeChange}
-                onMount={handleEditorDidMount}
-                theme={theme === 'dark' ? 'vs-dark' : 'light'}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  lineNumbers: 'on',
-                  roundedSelection: false,
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                }}
-              />
-            ) : activeTab === 'terminal' ? (
-              <Terminal 
-                onCommand={handleTerminalCommand}
-                className="h-full"
-              />
-            ) : (
-              <div className="h-full p-6">
-                <div className="h-full bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                        <Bot className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">AI Assistant</h3>
-                        <p className="text-sm text-white/60">Get intelligent help with your code</p>
-                      </div>
-                    </div>
-                    {isLoading && (
-                      <div className="flex items-center space-x-2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-400"></div>
-                        <span className="text-sm text-white/60">Thinking...</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="h-full overflow-auto">
-                    {aiResponse ? (
-                      <div className="bg-black/40 rounded-lg p-4 border border-white/10">
-                        <pre className="text-sm text-white/90 font-mono whitespace-pre-wrap leading-relaxed">
-                          {aiResponse}
-                        </pre>
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <div className="w-16 h-16 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                          <Bot className="h-8 w-8 text-purple-400" />
-                        </div>
-                        <p className="text-white/70 text-lg mb-2">Ready to help!</p>
-                        <p className="text-white/50 text-sm">
-                          Click one of the AI buttons above to get assistance with your code.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* Bottom Panel - Terminal */}
+      <TerminalPanel
+        isOpen={showTerminal}
+        onToggle={() => setShowTerminal(!showTerminal)}
+        onCommand={handleTerminalCommand}
+        onSimplifyError={handleSimplifyError}
+      />
     </div>
   );
 }

@@ -39,7 +39,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
   };
 
   return (
-    <header className="h-16 bg-black/20 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-6">
+    <header className="h-16 bg-gray-900/50 backdrop-blur-xl border-b border-gray-800 flex items-center justify-between px-6">
       <div className="flex items-center space-x-4">
         <Button
           variant="ghost"
@@ -51,14 +51,14 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
         </Button>
         
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-lg">⚡</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold text-white">
               Solana AI IDE
             </h1>
-            <p className="text-xs text-white/60">AI-Powered Development</p>
+            <p className="text-xs text-gray-400">AI-Powered Development</p>
           </div>
         </div>
       </div>
@@ -71,8 +71,8 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
           onClick={() => onViewChange?.('learn')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
             currentView === 'learn' 
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
-              : 'text-white/70 hover:text-white hover:bg-white/10'
+              ? 'bg-blue-600 text-white shadow-lg' 
+              : 'text-gray-300 hover:text-white hover:bg-gray-800'
           }`}
         >
           <BookOpen className="h-4 w-4" />
@@ -84,8 +84,8 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
           onClick={() => onViewChange?.('code')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
             currentView === 'code' 
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
-              : 'text-white/70 hover:text-white hover:bg-white/10'
+              ? 'bg-blue-600 text-white shadow-lg' 
+              : 'text-gray-300 hover:text-white hover:bg-gray-800'
           }`}
         >
           <Code className="h-4 w-4" />
@@ -97,8 +97,8 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
           onClick={() => onViewChange?.('community')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
             currentView === 'community' 
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
-              : 'text-white/70 hover:text-white hover:bg-white/10'
+              ? 'bg-blue-600 text-white shadow-lg' 
+              : 'text-gray-300 hover:text-white hover:bg-gray-800'
           }`}
         >
           <Users className="h-4 w-4" />
@@ -114,7 +114,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
               size="sm"
               onClick={handleCompile}
               disabled={isCompiling}
-              className="flex items-center space-x-2 border-white/20 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/30"
+              className="flex items-center space-x-2 border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 hover:border-gray-500"
             >
               <Play className="h-4 w-4" />
               <span className="font-medium">{isCompiling ? 'Compiling...' : 'Compile'}</span>
@@ -124,7 +124,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
               size="sm"
               onClick={handleDeploy}
               disabled={isDeploying || !connected}
-              className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg"
+              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
             >
               <Download className="h-4 w-4" />
               <span className="font-medium">{isDeploying ? 'Deploying...' : 'Deploy'}</span>
@@ -174,7 +174,7 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
           </div>
         )}
         
-        <WalletMultiButton className="!bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !shadow-lg !border-0" />
+        <WalletMultiButton className="!bg-blue-600 hover:!bg-blue-700 !text-white !shadow-lg !border-0" />
       </div>
     </header>
   );

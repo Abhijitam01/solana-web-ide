@@ -75,7 +75,7 @@ export default function Home() {
     <ConnectionProvider endpoint={clusterApiUrl('devnet')}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <div className="h-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+          <div className="h-screen flex flex-col bg-black text-white">
             <Header 
               onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
               onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -96,18 +96,18 @@ export default function Home() {
                 {currentView === 'learn' && <LearningDashboard />}
                 {currentView === 'code' && <IDE />}
                 {currentView === 'community' && (
-                  <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+                  <div className="h-full flex items-center justify-center bg-black">
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                         <span className="text-3xl">👥</span>
                       </div>
                       <h2 className="text-3xl font-bold text-white mb-4">Community Features</h2>
-                      <p className="text-xl text-white/70 mb-8">Coming soon! Join study groups, find mentors, and collaborate with other developers.</p>
+                      <p className="text-xl text-gray-300 mb-8">Coming soon! Join study groups, find mentors, and collaborate with other developers.</p>
                       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-purple-500/25">
+                        <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-blue-500/25">
                           Join Waitlist
                         </button>
-                        <button className="px-6 py-3 border border-white/20 text-white/70 hover:text-white hover:bg-white/10 rounded-lg font-medium transition-all duration-300">
+                        <button className="px-6 py-3 border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg font-medium transition-all duration-300">
                           Learn More
                         </button>
                       </div>
