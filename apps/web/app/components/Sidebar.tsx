@@ -61,25 +61,25 @@ export default function Sidebar({ onClose, currentView, onViewChange }: SidebarP
   ];
 
   return (
-    <div className="w-64 bg-white dark:bg-gray-800 flex flex-col h-full">
+    <div className="w-64 bg-card flex flex-col h-full border-r border-border/50 shadow-sm">
       {/* Sidebar Header */}
-      <div className="h-10 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-3">
+      <div className="h-12 border-b border-border/50 flex items-center justify-between px-4 backdrop-blur-sm bg-card/50">
         <div className="flex items-center space-x-2">
-          <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Explorer</span>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Explorer</span>
         </div>
         <div className="flex items-center space-x-1">
-          <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-            <Plus className="w-3.5 h-3.5" />
+          <button className="p-1.5 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-110 active:scale-95" aria-label="Add file">
+            <Plus className="w-4 h-4" />
           </button>
-          <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-            <MoreHorizontal className="w-3.5 h-3.5" />
+          <button className="p-1.5 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-110 active:scale-95" aria-label="More options">
+            <MoreHorizontal className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* File Explorer */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-2">
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+        <div className="p-3">
           {fileStructure.map((item, index) => (
             <FileItem
               key={index}
@@ -93,15 +93,15 @@ export default function Sidebar({ onClose, currentView, onViewChange }: SidebarP
       </div>
 
       {/* Bottom Actions */}
-      <div className="border-t border-gray-200 dark:border-gray-700 p-2">
+      <div className="border-t border-border/50 p-3 backdrop-blur-sm bg-card/50">
         <div className="flex items-center justify-between">
-          <button className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
-            <Terminal className="w-3.5 h-3.5" />
-            <span>Terminal</span>
+          <button className="flex items-center space-x-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group">
+            <Terminal className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            <span className="font-medium">Terminal</span>
           </button>
-          <button className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
-            <GitBranch className="w-3.5 h-3.5" />
-            <span>Git</span>
+          <button className="flex items-center space-x-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group">
+            <GitBranch className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            <span className="font-medium">Git</span>
           </button>
         </div>
       </div>
@@ -125,32 +125,37 @@ function FileItem({ item, level, expandedFolders, onToggleFolder }: FileItemProp
     <div>
       <div
         className={cn(
-          "flex items-center space-x-2 py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors",
+          "flex items-center space-x-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-accent transition-all duration-200 group relative",
           level > 0 && "ml-4"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={() => isFolder && onToggleFolder(item.name)}
       >
         {isFolder && (
-          <div className={cn("transition-transform duration-150", isExpanded && "rotate-90")}>
-            <ChevronRight className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+          <div className={cn("transition-transform duration-200 text-muted-foreground", isExpanded && "rotate-90")}>
+            <ChevronRight className="w-4 h-4" />
           </div>
         )}
-        {!isFolder && <div className="w-3.5" />}
+        {!isFolder && <div className="w-4" />}
 
-        {isFolder ? (
-          <Folder className="w-3.5 h-3.5 text-blue-500" />
-        ) : (
-          <FileText className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
-        )}
+        <div className="flex-shrink-0">
+          {isFolder ? (
+            <Folder className={cn("w-4 h-4 transition-colors", isExpanded ? "text-primary" : "text-blue-400")} />
+          ) : (
+            <FileText className={cn("w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors")} />
+          )}
+        </div>
 
-        <span className="text-xs text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+        <span className="text-sm text-foreground/80 group-hover:text-foreground font-medium transition-colors truncate">
           {item.name}
         </span>
+        
+        {/* Hover indicator */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-primary rounded-r-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
       </div>
 
       {isFolder && isExpanded && item.children && (
-        <div>
+        <div className="animate-fade-in">
           {item.children.map((child: any, index: number) => (
             <FileItem
               key={index}

@@ -38,40 +38,41 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
   ] as const;
 
   return (
-    <header className="h-12 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4">
+    <header className="h-14 bg-card/80 dark:bg-card/90 backdrop-blur-md border-b border-border/40 flex items-center justify-between px-6 shadow-sm sticky top-0 z-50 transition-all duration-300">
       {/* Left side */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-5">
         {/* Menu button */}
         <button
           onClick={onToggleSidebar}
-          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+          className="p-2 hover:bg-accent rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group"
+          aria-label="Toggle sidebar"
         >
-          <Menu className="w-4 h-4" />
+          <Menu className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
         </button>
 
         {/* Logo */}
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-black dark:bg-white rounded flex items-center justify-center">
-            <span className="text-white dark:text-black text-xs font-bold">S</span>
+        <div className="flex items-center space-x-2.5 group cursor-pointer">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-600 rounded-lg flex items-center justify-center shadow-primary shadow-sm group-hover:shadow-glow transition-all duration-300 group-hover:scale-110">
+            <span className="text-white text-sm font-bold">S</span>
           </div>
-          <span className="text-sm font-medium text-gray-900 dark:text-white">Solana IDE</span>
+          <span className="text-base font-semibold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">Solana IDE</span>
         </div>
 
         {/* View switcher */}
-        <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-md p-0.5">
+        <div className="flex items-center bg-accent rounded-lg p-1 shadow-inner">
           {views.map((view) => {
             const Icon = view.icon;
             return (
               <button
                 key={view.id}
                 onClick={() => onViewChange?.(view.id)}
-                className={`flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-medium rounded-sm transition-colors ${
+                className={`group flex items-center space-x-2 px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
                   currentView === view.id
-                    ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    ? "bg-background text-foreground shadow-sm scale-105"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 <span>{view.label}</span>
               </button>
             );
@@ -80,55 +81,68 @@ export default function Header({ onToggleSidebar, onToggleTheme, user, onLogout,
       </div>
 
       {/* Right side */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-2">
         {/* Search */}
-        <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors">
-          <Search className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+        <button className="p-2 hover:bg-accent rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group" aria-label="Search">
+          <Search className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
         </button>
 
         {/* Theme toggle */}
         <button
           onClick={onToggleTheme}
-          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+          className="p-2 hover:bg-accent rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group"
+          aria-label="Toggle theme"
         >
           {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <Sun className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
           ) : (
-            <Moon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <Moon className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
           )}
         </button>
+
+        {/* Wallet Status Indicator */}
+        {connected && (
+          <div className="flex items-center space-x-1.5 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+            <span className="text-xs font-medium text-green-600 dark:text-green-400">Connected</span>
+          </div>
+        )}
 
         {/* Wallet/User */}
         {connected ? (
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center space-x-2 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+              className="flex items-center space-x-2 p-1.5 hover:bg-accent rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group"
+              aria-label="User menu"
             >
-              <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                <User className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
+                <User className="w-4 h-4 text-white" />
               </div>
             </button>
 
             {showUserMenu && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
-                <div className="p-2">
-                  <div className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
+              <div className="absolute right-0 top-full mt-2 w-56 bg-popover border border-border rounded-xl shadow-xl backdrop-blur-xl z-50 animate-fade-in-down overflow-hidden">
+                <div className="p-3">
+                  <div className="px-3 py-2 text-sm font-semibold text-foreground border-b border-border/50 mb-2">
                     {user?.name || 'User'}
+                  </div>
+                  <div className="px-3 py-1.5 text-xs text-muted-foreground mb-2">
+                    {user?.email || 'user@example.com'}
                   </div>
                   <button
                     onClick={onLogout}
-                    className="w-full flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition-colors"
+                    className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-foreground hover:bg-destructive/10 hover:text-destructive rounded-lg transition-all duration-200 group"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Logout</span>
+                    <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <span className="font-medium">Logout</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
         ) : (
-          <WalletMultiButton className="!bg-black dark:!bg-white !text-white dark:!text-black !text-xs !h-8 !px-3 !rounded-md hover:!bg-gray-800 dark:hover:!bg-gray-200 transition-colors" />
+          <WalletMultiButton className="!h-9 !px-4 !rounded-lg !bg-primary !text-primary-foreground hover:!bg-primary/90 !transition-all !shadow-sm hover:!shadow-md !scale-100 hover:!scale-105 active:!scale-95" />
         )}
       </div>
     </header>

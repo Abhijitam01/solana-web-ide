@@ -82,13 +82,23 @@ export default function Home() {
   // Loading screen
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 bg-black dark:bg-white rounded flex items-center justify-center mx-auto mb-4">
-            <span className="text-white dark:text-black text-sm font-bold">S</span>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 text-foreground flex items-center justify-center">
+        <div className="text-center animate-fade-in-up">
+          <div className="relative">
+            <div className="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-primary animate-pulse-slow">
+              <span className="text-white text-2xl font-bold">S</span>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-600 rounded-2xl blur-xl opacity-50 animate-pulse" />
           </div>
-          <h2 className="text-lg font-medium mb-2">Loading Solana IDE</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Preparing your development environment...</p>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-2">
+            Solana IDE
+          </h2>
+          <p className="text-muted-foreground text-sm">Preparing your development environment...</p>
+          <div className="flex items-center justify-center space-x-2 mt-4">
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
         </div>
       </div>
     );
@@ -98,7 +108,7 @@ export default function Home() {
   if (!isAuthenticated) {
     return (
       <UIEnhancements>
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
           <LandingPage 
             onLogin={() => setShowAuthModal(true)}
             onSignup={() => setShowAuthModal(true)}
@@ -122,7 +132,7 @@ export default function Home() {
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
             <WalletSync />
-            <div className="h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+            <div className="h-screen flex flex-col bg-gradient-to-br from-background via-background to-accent/5 text-foreground overflow-hidden">
               {/* Enhanced Header */}
               <Header
                 onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
@@ -134,10 +144,13 @@ export default function Home() {
               />
 
               {/* Main Content Area */}
-              <div className="flex flex-1 overflow-hidden">
+              <div className="flex flex-1 overflow-hidden relative">
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 pointer-events-none" />
+                
                 {/* Sidebar */}
                 {sidebarOpen && (
-                  <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+                  <aside className="w-64 bg-card/80 backdrop-blur-sm border-r border-border/50 flex flex-col shadow-lg z-10">
                     <Sidebar 
                       onClose={() => setSidebarOpen(false)}
                       currentView={currentView}
@@ -147,14 +160,14 @@ export default function Home() {
                 )}
 
                 {/* Main Content */}
-                <main className="flex-1 flex flex-col overflow-hidden">
+                <main className="flex-1 flex flex-col overflow-hidden relative z-0">
                   {/* Content Tabs */}
-                  <div className="h-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4">
+                  <div className="h-12 bg-card/60 backdrop-blur-sm border-b border-border/50 flex items-center px-4 shadow-sm">
                     <div className="flex items-center space-x-1">
-                      <div className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white text-sm rounded-t-md border-b-2 border-blue-500">
+                      <div className="px-4 py-2 bg-gradient-to-r from-primary/10 to-purple-600/10 text-foreground text-sm font-medium rounded-t-lg border-b-2 border-primary shadow-sm">
                         {currentView === 'code' ? 'lib.rs' : `${currentView.charAt(0).toUpperCase() + currentView.slice(1)}.tsx`}
                       </div>
-                      <div className="px-3 py-1.5 text-gray-500 dark:text-gray-400 text-sm hover:text-gray-900 dark:hover:text-white cursor-pointer">
+                      <div className="px-3 py-2 text-muted-foreground text-sm hover:text-foreground hover:bg-accent rounded-t-lg cursor-pointer transition-all duration-200">
                         +
                       </div>
                     </div>
@@ -166,13 +179,13 @@ export default function Home() {
                     {currentView === 'tutorials' && <TutorialsPage />}
                     {currentView === 'code' && <IDE />}
                     {currentView === 'community' && (
-                      <div className="h-full flex items-center justify-center bg-white dark:bg-gray-900">
-                        <div className="text-center">
-                          <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-4">
-                            <span className="text-xl">👥</span>
+                      <div className="h-full flex items-center justify-center bg-gradient-to-br from-accent/5 via-background to-primary/5">
+                        <div className="text-center animate-fade-in-up">
+                          <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-purple-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg backdrop-blur-sm">
+                            <span className="text-3xl">👥</span>
                           </div>
-                          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Community</h2>
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Coming soon...</p>
+                          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-2">Community</h2>
+                          <p className="text-muted-foreground text-sm">Coming soon...</p>
                         </div>
                       </div>
                     )}
@@ -181,7 +194,7 @@ export default function Home() {
               </div>
 
               {/* Footer Status Bar */}
-              <footer className="h-8 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 text-xs text-gray-500 dark:text-gray-400">
+              <footer className="h-10 bg-card/80 backdrop-blur-sm border-t border-border/50 flex items-center justify-between px-4 text-xs text-muted-foreground shadow-sm z-10 relative">
                 <div className="flex items-center space-x-4">
                   <span>Ready</span>
                   <span>•</span>
