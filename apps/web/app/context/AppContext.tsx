@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 
 // ==================== Types ====================
@@ -164,7 +163,7 @@ interface AppContextState {
     publicKey: PublicKey | null;
     connected: boolean;
     connecting: boolean;
-    disconnect: () => void;
+    setWalletState: (state: { publicKey?: PublicKey | null; connecting?: boolean }) => void;
   };
 
   // UI State
@@ -255,8 +254,9 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-  const { publicKey, connecting, disconnect } = useWallet();
-  const connection = useConnection();
+  // Wallet state - will be provided by components that have wallet context
+  const [publicKey, setPublicKey] = useState<PublicKey | null>(null);
+  const [connecting, setConnecting] = useState(false);
 
   // Theme State
   const [theme, setThemeState] = useState<Theme>(() => {
@@ -496,7 +496,10 @@ pub struct Counter {
       publicKey,
       connected: !!publicKey,
       connecting,
-      disconnect
+      setWalletState: (state) => {
+        if (state.publicKey !== undefined) setPublicKey(state.publicKey);
+        if (state.connecting !== undefined) setConnecting(state.connecting);
+      }
     },
     sidebarOpen,
     setSidebarOpen,

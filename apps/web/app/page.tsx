@@ -13,8 +13,10 @@ import AuthModal from './components/AuthModal';
 import LandingPage from './landing/page';
 import LearningDashboard from './learn/page';
 import TutorialsPage from './tutorials/page';
-import UIEnhancements, { showSuccess, showInfo } from './components/UIEnhancements';
+import UIEnhancements from './components/UIEnhancements';
 import { useTheme } from './components/ThemeProvider';
+import { useApp } from './context/AppContext';
+import WalletSync from './components/WalletSync';
 
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -25,14 +27,23 @@ const wallets = [
 ];
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [user, setUser] = useState(null);
-  const [currentView, setCurrentView] = useState<'learn' | 'tutorials' | 'code' | 'community'>('learn');
-  const [isLoading, setIsLoading] = useState(true);
-  const [previousView, setPreviousView] = useState<'learn' | 'tutorials' | 'code' | 'community'>('learn');
+  const {
+    sidebarOpen,
+    setSidebarOpen,
+    isAuthenticated,
+    user,
+    login,
+    logout,
+    currentView,
+    setCurrentView,
+    showToast,
+    setIsLoading,
+    isLoading
+  } = useApp();
+  
   const { theme, setTheme } = useTheme();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [previousView, setPreviousView] = useState<'learn' | 'tutorials' | 'code' | 'community'>('learn');
 
   useEffect(() => {
     // Simulate initial loading
@@ -40,29 +51,18 @@ export default function Home() {
       setIsLoading(false);
     }, 1000);
 
-    // Check for authentication
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setIsAuthenticated(true);
-    }
-
     return () => clearTimeout(timer);
-  }, []);
+  }, [setIsLoading]);
 
   const handleAuthSuccess = (userData: any) => {
-    setUser(userData);
-    setIsAuthenticated(true);
+    login(userData);
     setShowAuthModal(false);
-    localStorage.setItem('user', JSON.stringify(userData));
-    showSuccess('Welcome!', 'You have successfully logged in to Solana IDE');
+    showToast({ type: 'success', message: 'You have successfully logged in to Solana IDE', title: 'Welcome!' });
   };
 
   const handleLogout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('user');
-    showInfo('Logged Out', 'You have been logged out successfully');
+    logout();
+    showToast({ type: 'info', message: 'You have been logged out successfully', title: 'Logged Out' });
   };
 
   const handleViewChange = (view: 'learn' | 'tutorials' | 'code' | 'community') => {
@@ -71,11 +71,11 @@ export default function Home() {
     
     // Show contextual messages
     if (view === 'code') {
-      showInfo('Code Editor', 'Start building your Solana programs');
+      showToast({ type: 'info', message: 'Start building your Solana programs', title: 'Code Editor' });
     } else if (view === 'learn') {
-      showInfo('Learning Dashboard', 'Continue your Solana journey');
+      showToast({ type: 'info', message: 'Continue your Solana journey', title: 'Learning Dashboard' });
     } else if (view === 'tutorials') {
-      showInfo('Tutorials', 'Explore interactive coding tutorials');
+      showToast({ type: 'info', message: 'Explore interactive coding tutorials', title: 'Tutorials' });
     }
   };
 
@@ -121,6 +121,7 @@ export default function Home() {
       <ConnectionProvider endpoint={clusterApiUrl('devnet')}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
+            <WalletSync />
             <div className="h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
               {/* Enhanced Header */}
               <Header
