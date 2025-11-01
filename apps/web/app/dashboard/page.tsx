@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Button } from '@repo/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/card';
+import ResourceCards from '../components/ResourceCards';
+import TutorialSection from '../components/TutorialSection';
 import { 
   Plus, 
   Code, 
@@ -308,6 +310,15 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Resources & Tutorials Section */}
+        <div className="mt-16 space-y-16">
+          {/* Resources */}
+          <ResourceCards />
+          
+          {/* Tutorials */}
+          <TutorialSection />
         </div>
       </div>
     </div>

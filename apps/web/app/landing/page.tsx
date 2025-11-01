@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@repo/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/card';
 import { Code } from '@repo/ui/code';
+import ResourceCards from '../components/ResourceCards';
+import TutorialSection from '../components/TutorialSection';
 import { 
   Bot, 
   Code2, 
@@ -533,6 +535,59 @@ pub mod hello_world {
             ))}
           </div>
         </div>
+      </motion.section>
+
+      {/* Resources Section */}
+      <motion.section 
+        className="py-24 px-4 relative container mx-auto"
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+      >
+        <motion.div 
+          className="text-center mb-12"
+          variants={fadeInUp}
+        >
+          <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-green-500/10 to-blue-500/10 backdrop-blur-xl border border-white/10 mb-8">
+            <Layers className="h-4 w-4 text-green-400 mr-2" />
+            <span className="text-sm font-medium bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+              📚 Resources
+            </span>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            Everything you need to get started
+          </h2>
+        </motion.div>
+        <ResourceCards />
+      </motion.section>
+
+      {/* Tutorials Section */}
+      <motion.section 
+        className="py-24 px-4 relative container mx-auto bg-gray-900/30"
+        variants={staggerContainer}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+      >
+        <motion.div 
+          className="text-center mb-12"
+          variants={fadeInUp}
+        >
+          <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-red-500/10 to-pink-500/10 backdrop-blur-xl border border-white/10 mb-8">
+            <Play className="h-4 w-4 text-red-400 mr-2" />
+            <span className="text-sm font-medium bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">
+              🎥 Video Tutorials
+            </span>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            Learn by doing
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Watch step-by-step tutorials and build real Solana applications in minutes.
+          </p>
+        </motion.div>
+        <TutorialSection />
       </motion.section>
 
       {/* Quick Onboarding Section */}
