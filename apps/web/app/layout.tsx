@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AppProvider } from "./context/AppContext";
+import ToastContainer from "./components/ToastContainer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,6 +37,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="dark" storageKey="solana-ide-theme">
           <AppProvider>
             {children}
+            <ToastContainer />
           </AppProvider>
         </ThemeProvider>
       </body>
